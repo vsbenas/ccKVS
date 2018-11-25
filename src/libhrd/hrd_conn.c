@@ -471,7 +471,7 @@ void hrd_connect_qp(struct hrd_ctrl_blk *cb,
 	  conn_attr.ah_attr.dlid = 0;
 		conn_attr.ah_attr.grh.dgid.global.interface_id =  remote_qp_attr->gid_global_interface_id;
 		conn_attr.ah_attr.grh.dgid.global.subnet_prefix = remote_qp_attr->gid_global_subnet_prefix;
-		conn_attr.ah_attr.grh.sgid_index = 0;
+		conn_attr.ah_attr.grh.sgid_index = 1;
 		conn_attr.ah_attr.grh.hop_limit = 1;
 	}
 	else { // Infiniband
@@ -598,7 +598,7 @@ void hrd_publish_conn_qp(struct hrd_ctrl_blk *cb, int n, const char *qp_name)
   // <vasilis>  ---ROCE----------
 	if (is_roce == 1) {
 		union ibv_gid ret_gid;
-		ibv_query_gid(cb->ctx, IB_PHYS_PORT, 0, &ret_gid);
+		ibv_query_gid(cb->ctx, IB_PHYS_PORT, 1, &ret_gid);
 	  qp_attr.gid_global_interface_id = ret_gid.global.interface_id;
 		qp_attr.gid_global_subnet_prefix = ret_gid.global.subnet_prefix;
 	}
@@ -641,7 +641,7 @@ void hrd_publish_dgram_qp(struct hrd_ctrl_blk *cb, int n, const char *qp_name, u
 	// <Vasilis>  ---ROCE----------
 	if (is_roce == 1) {
 		union ibv_gid ret_gid;
-		ibv_query_gid(cb->ctx, IB_PHYS_PORT, 0, &ret_gid);
+		ibv_query_gid(cb->ctx, IB_PHYS_PORT, 1, &ret_gid);
 	  qp_attr.gid_global_interface_id = ret_gid.global.interface_id;
 		qp_attr.gid_global_subnet_prefix = ret_gid.global.subnet_prefix;
 	}

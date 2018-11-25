@@ -127,7 +127,6 @@ int main(int argc, char *argv[])
 		}
 	}
 
-
 	printf("coalesce size %d worker inlining %d, client inlining %d \n",
 		   MAX_COALESCE_PER_MACH, WORKER_ENABLE_INLINING, CLIENT_ENABLE_INLINING);
 	yellow_printf("remote send queue depth %d, remote send ss batch %d \n", CLIENT_SEND_REM_Q_DEPTH, CLIENT_SS_BATCH);
@@ -176,13 +175,14 @@ int main(int argc, char *argv[])
 	for(i = 0; i < num_threads; i++) {
 		param_arr[i].id = i;
 		if (i < CLIENTS_PER_MACHINE ) { // spawn clients
-			int c_core = pin_client(i);
-			yellow_printf("Creating client thread %d at core %d \n", param_arr[i].id, c_core);
-			CPU_ZERO(&cpus_c);
-			CPU_SET(c_core, &cpus_c);
-			pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpus_c);
-			pthread_create(&thread_arr[i], &attr, run_client, &param_arr[i]);// change NULL here to &attr to get the thread affinity
-			occupied_cores[c_core] = 1;
+//			int c_core = pin_client(i);
+			yellow_printf("Creating client thread %d at core X \n", param_arr[i].id);
+//			CPU_ZERO(&cpus_c);
+//			CPU_SET(c_core, &cpus_c);
+//			pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpus_c);
+//			pthread_create(&thread_arr[i], &attr, run_client, &param_arr[i]);// change NULL here to &attr to get the thread affinity
+			pthread_create(&thread_arr[i], NULL, run_client, &param_arr[i]);// change NULL here to &attr to get the thread affinity
+//			occupied_cores[c_core] = 1;
 		}
 		if ( i < WORKERS_PER_MACHINE) { // spawn workers
 			int w_core = pin_worker(i);
@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
 			CPU_SET(w_core, &cpus_w);
 
 			pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpus_w);
-			pthread_create(&thread_arr[i + CLIENTS_PER_MACHINE], &attr, run_worker, &param_arr[i]);// change NULL here to &attr to get the thread affinity
+			pthread_create(&thread_arr[i + CLIENTS_PER_MACHINE], NULL, run_worker, &param_arr[i]);// change NULL here to &attr to get the thread affinity
 			occupied_cores[w_core] = 1;
 		}
 	}

@@ -3,6 +3,8 @@
 
 void *run_client(void *arg)
 {
+	cyan_printf("LIN: Size of worker req: %d, extra bytes: %d, ud req size: %d minimum worker req size %d, actual size of req_size %d  \n",
+				WORKER_REQ_SIZE, EXTRA_WORKER_REQ_BYTES, UD_REQ_SIZE, MINIMUM_WORKER_REQ_SIZE, sizeof(struct wrkr_ud_req));
 	int poll_i, i, j;
 	struct thread_params params = *(struct thread_params *) arg;
 	int clt_gid = (machine_id * CLIENTS_PER_MACHINE) + params.id;	/* Global ID of this client thread */

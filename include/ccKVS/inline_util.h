@@ -896,7 +896,7 @@ static inline void poll_and_send_remotes(uint16_t previous_wr_i, uint16_t local_
 		}
 		if (DEBUG_COALESCING && ENABLE_COALESCING)
 			debug_coalescing(rem_send_sgl, local_client_id, rem_req_i, wr_i);
-			//		yellow_printf("Sending %d messages \n", wr_i);
+		//yellow_printf("Sending %d messages \n", wr_i);
 		rem_send_wr[wr_i - 1].next = NULL;
 		ret = ibv_post_send(cb->dgram_qp[REMOTE_UD_QP_ID], &rem_send_wr[0], &bad_send_wr);
 		if (ENABLE_ASSERTIONS && ret != 0)
@@ -1018,8 +1018,9 @@ static inline void forge_bcast_wrs_SC(uint16_t op_i, struct extended_cache_op *o
 		coh_send_sgl[br_i].addr = (uint64_t) (uintptr_t) (coh_buf + (*coh_buf_i));
 		MOD_ADD_WITH_BASE((*coh_buf_i), COH_BUF_SLOTS, 0);
 	} // when not inlining ops cannot be used, as the pointer will shift in the next iteration
-	// if (machine_id == 1); green_printf("CLIENT %d : I send Broadcast, opcode: %d credits: %d, (*br_tx) %llu, tag %d \n",
-	// 		clt_gid, ops[op_i].opcode, credits[SC_UPD_VC][(machine_id + 1) % MACHINE_NUM], (*br_tx), ops[op_i].key.tag);
+//	 if (machine_id == 1); green_printf("CLIENT %d : I send Broadcast, opcode: %d , (*br_tx) %llu, tag %d \n",
+//                                        local_client_id, ops[op_i].opcode,
+//                                        (*br_tx), ops[op_i].key.tag);
 	if (br_i > 0)
 		coh_send_wr[(br_i * MESSAGES_IN_BCAST) - 1].next = &coh_send_wr[br_i * MESSAGES_IN_BCAST];
 }
@@ -1687,8 +1688,8 @@ static inline void poll_workers_recv_completions(uint16_t* per_qp_received_messa
 {
 	uint16_t wc_i = 0, qp_i;
 	for (qp_i = 0; qp_i < WORKER_NUM_UD_QPS; qp_i++) { // take care to poll the correct recv queues
-		//      printf("Polling wr_i= %d, received_messages = %d, per_qp_received_messages[qp_i] = %d, qp_i =%d \n", wr_i,
-		//      						received_messages, per_qp_received_messages[qp_i], qp_i );
+		     //printf("Polling wr_i= %d, received_messages = %d, per_qp_received_messages[qp_i] = %d, qp_i =%d \n", wr_i,
+		      	//					received_messages, per_qp_received_messages[qp_i], qp_i );
 		if (per_qp_received_messages[qp_i] > 0) {
 			if (ENABLE_ASSERTIONS) {
 				assert(per_qp_received_messages[qp_i] <= WS_PER_WORKER * (CLIENT_NUM - CLIENTS_PER_MACHINE));

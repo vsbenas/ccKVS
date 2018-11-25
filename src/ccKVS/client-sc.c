@@ -3,15 +3,16 @@
 
 void *run_client(void *arg)
 {
+    cyan_printf("Size of worker req: %d, extra bytes: %d, ud req size: %d minimum worker req size %d, actual size of req_size %d  \n",
+                WORKER_REQ_SIZE, EXTRA_WORKER_REQ_BYTES, UD_REQ_SIZE, MINIMUM_WORKER_REQ_SIZE, sizeof(struct wrkr_ud_req));
     int i, j;
     struct thread_params params = *(struct thread_params *) arg;
     int clt_gid = (machine_id * CLIENTS_PER_MACHINE) + params.id;	/* Global ID of this client thread */
     uint16_t local_client_id = (uint16_t) (clt_gid % CLIENTS_PER_MACHINE);
     uint16_t worker_qp_i = (uint16_t) ((local_client_id + machine_id) % WORKER_NUM_UD_QPS);
     uint16_t local_worker_id = (uint16_t) ((clt_gid % LOCAL_WORKERS) + ACTIVE_WORKERS_PER_MACHINE); // relevant only if local workers are enabled
-    if (local_client_id == 0 && machine_id == 0)
-        cyan_printf("Size of worker req: %d, extra bytes: %d, ud req size: %d minimum worker req size %d, actual size of req_size %d  \n",
-                    WORKER_REQ_SIZE, EXTRA_WORKER_REQ_BYTES, UD_REQ_SIZE, MINIMUM_WORKER_REQ_SIZE, sizeof(struct wrkr_ud_req));
+    //if (local_client_id == 0 && machine_id == 0)
+
     int protocol = SEQUENTIAL_CONSISTENCY;
     int *recv_q_depths, *send_q_depths;
     uint16_t remote_buf_size =  ENABLE_WORKER_COALESCING == 1 ?

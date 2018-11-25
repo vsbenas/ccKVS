@@ -93,8 +93,8 @@ void *print_stats(void* no_arg)
         total_throughput = (all_clients_cache_hits + all_workers_remotes + all_workers_locals) / seconds;
         all_clients_throughput = all_clients_cache_hits / seconds;
         all_workers_throughput = (all_workers_remotes + all_workers_locals) / seconds;
-        printf("---------------PRINT %d time elapsed %.2f---------------\n", print_count, seconds / MILLION);
-        green_printf("SYSTEM MIOPS: %.2f Cache MIOPS: %.2f WORKER: MIOPS: %.2f \n",
+        printf("---------------PRINT %d time elapsed %.5f---------------\n", print_count, seconds / MILLION);
+        green_printf("SYSTEM MIOPS: %.5f Cache MIOPS: %.5f WORKER: MIOPS: %.5f \n",
                      total_throughput, all_clients_throughput, all_workers_throughput);
         for (i = 0; i < CLIENTS_PER_MACHINE; i++) {
             double cacheHitRate;
@@ -104,14 +104,14 @@ void *print_stats(void* no_arg)
                 trace_ratio =  curr_c_stats[i].cache_hits_per_client / (double)total_reqs;
             if (all_stats.remotes_per_client[i] > 0)
                 cacheHitRate = all_stats.cache_hits_per_client[i] / (all_stats.cache_hits_per_client[i] + all_stats.remotes_per_client[i] + all_stats.locals_per_client[i]);
-            yellow_printf("C%d: %.2f MIOPS-Batch %.2f(%.2f) -H %.2f -W %llu -E %.2f -AC %.2f  ", i, all_stats.cache_hits_per_client[i], all_stats.batch_size_per_client[i],
+            yellow_printf("C%d: %.5f MIOPS-Batch %.5f(%.5f) -H %.5f -W %llu -E %.5f -AC %.5f  ", i, all_stats.cache_hits_per_client[i], all_stats.batch_size_per_client[i],
                           all_stats.stalled_time_per_client[i], trace_ratio, curr_c_stats[i].wasted_loops, all_stats.empty_reqs_per_client[i],
                           all_stats.average_coalescing_per_client[i]);
             if  (i > 0 && i % 2 == 0) printf("\n");
         }
         printf("\n");
         for (i = 0; i < WORKERS_PER_MACHINE; i++) {
-            cyan_printf("WORKER %d: TOTAL: %.2f MIOPS, REMOTES: %.2f MIOPS, LOCALS: %.2f MIOPS, Batch %.2f(%.2f) \n",
+            cyan_printf("WORKER %d: TOTAL: %.5f MIOPS, REMOTES: %.5f MIOPS, LOCALS: %.5f MIOPS, Batch %.5f(%.5f) \n",
                         i, worker_throughput[i], all_stats.remotes_per_worker[i], all_stats.locals_per_worker[i], all_stats.batch_size_per_worker[i],
                         all_stats.aver_reqs_polled_per_worker[i]);
         }
@@ -121,7 +121,7 @@ void *print_stats(void* no_arg)
         // // Write to a file all_clients_throughput, per_worker_remote_throughput[], per_worker_local_throughput[]
         if(DUMP_STATS_2_FILE == 1)
             dump_stats_2_file(&all_stats);
-        green_printf("SYSTEM MIOPS: %.2f Cache MIOPS: %.2f WORKER: MIOPS: %.2f \n",
+        green_printf("SYSTEM MIOPS: %.5f Cache MIOPS: %.5f WORKER: MIOPS: %.5f \n",
                      total_throughput, all_clients_throughput, all_workers_throughput);
 
     }

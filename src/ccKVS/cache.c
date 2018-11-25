@@ -1218,6 +1218,7 @@ int batch_from_trace_to_cache(int trace_iter, int thread_id, struct trace_comman
 	empty_reqs *= 100;
 	c_stats[thread_id].empty_reqs_per_trace = (double) empty_reqs / CACHE_BATCH_SIZE;
 	c_stats[thread_id].tot_empty_reqs_per_trace += c_stats[thread_id].empty_reqs_per_trace;
+	//if (i > 0) cyan_printf("got %d reqs\n", i);
 	if (DISABLE_CACHE == 0) {
 		if(isSC == 1) cache_batch_op_lin_non_stalling_sessions(i, thread_id, &ops, resp);
 		else cache_batch_op_sc(i, thread_id, &ops, resp);

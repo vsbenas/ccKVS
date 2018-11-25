@@ -227,12 +227,12 @@ void* hrd_malloc_socket(int shm_key, int size, int socket_id)
 	}
 
 	/* Bind the buffer to this socket */
-	const unsigned long nodemask = (1 << socket_id);
-	int ret = mbind(buf, size, MPOL_BIND, &nodemask, 32, 0);
-	if(ret != 0) {
-		printf("HRD: SHM malloc error. mbind() failed for key %d\n", shm_key);
-		exit(-1);
-	}
+//	const unsigned long nodemask = (1 << socket_id);
+//	int ret = mbind(buf, size, MPOL_BIND, &nodemask, 32, 0);
+//	if(ret != 0) {
+//		printf("HRD: SHM malloc error. mbind() failed for key %d\n", shm_key);
+//		exit(-1);
+//	}
 
 	// vasilis- try to take advantage of TLB coalescing, if it is there
 	if (LEVERAGE_TLB_COALESCING) {

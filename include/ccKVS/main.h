@@ -19,11 +19,11 @@
 #define MAX_SERVER_PORTS 1 // better not change that
 
 
-#define WORKERS_PER_MACHINE 10
-#define CLIENTS_PER_MACHINE 10
-#define MACHINE_NUM 3
+#define WORKERS_PER_MACHINE 1
+#define CLIENTS_PER_MACHINE 1
+#define MACHINE_NUM 2
 
-#define CACHE_SOCKET (WORKERS_PER_MACHINE < 8 ? 0 : 1 )// socket where the cache is bind
+#define CACHE_SOCKET 0 //(WORKERS_PER_MACHINE < 8 ? 0 : 1 )// socket where the cache is bind
 
 #define CLIENT_NUM (CLIENTS_PER_MACHINE * MACHINE_NUM)
 #define WORKER_NUM (WORKERS_PER_MACHINE * MACHINE_NUM)
@@ -120,7 +120,7 @@
 #define WORKER_ENABLE_INLINING (((USE_BIG_OBJECTS == 1) || (WORKER_RESPONSE_MAX_SIZE > MAXIMUM_INLINE_SIZE)) ?  0 : 1)
 
 // CACHE
-#define ENABLE_HOT_KEY_TRACKING 1
+#define ENABLE_HOT_KEY_TRACKING 0
 #define HOTTEST_KEYS_TO_TRACK 20
 
 
@@ -165,7 +165,7 @@
 #define EMULATING_CREW 1 // emulate crew, to facilitate running the CREW baseline
 #define RANDOM_MACHINE 0 // pick a rnadom machine
 #define DISABLE_CACHE 0 // Run Baseline
-#define LOAD_BALANCE 0 // Use a uniform access pattern
+#define LOAD_BALANCE 1 // Use a uniform access pattern
 #define EMULATE_SWITCH_KV 0 // Does nothing..
 #define SWITCH_KV_NODE 0 // which machine is the cache
 

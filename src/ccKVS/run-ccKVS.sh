@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
 ### Start of initialization ###
-is_RoCE=0
+is_RoCE=1
 executable="ccKVS-sc" # choose "ccKVS-sc" or "ccKVS-lin" according to the coherence protocol
-export MEMCACHED_IP="129.215.165.8" #Node having memcached for to initialize RDMA QPs connections/handlers
+export MEMCACHED_IP="192.168.122.14" #Node having memcached for to initialize RDMA QPs connections/handlers
 export MLX5_SINGLE_THREADED=1
 export MLX5_SCATTER_TO_CQE=1
 
 # Setting up a unique machine id via a list of all ip addresses
 machine_id=-1
-allIPs=(129.215.165.8 129.215.165.7 129.215.165.9 129.215.165.6 129.215.165.5 129.215.165.3 129.215.165.4 129.215.165.2 129.215.165.1)
+allIPs=(192.168.122.14 192.168.122.103 129.215.165.9 129.215.165.6 129.215.165.5 129.215.165.3 129.215.165.4 129.215.165.2 129.215.165.1)
 localIP=$(ip addr | grep 'state UP' -A2 | sed -n 3p | awk '{print $2}' | cut -f1  -d'/')
 for i in "${!allIPs[@]}"; do
 	if [  "${allIPs[i]}" ==  "$localIP" ]; then
@@ -54,9 +54,9 @@ shm-rm.sh 1>/dev/null 2>/dev/null
 
 
 blue "Reset server QP registry"
-sudo killall memcached
+#sudo killall memcached
 sudo killall ccKVS-sc
-memcached -l 0.0.0.0 1>/dev/null 2>/dev/null &
+#memcached -l 0.0.0.0 1>/dev/null 2>/dev/null &
 sleep 1
 
 blue "Running client and worker threads"

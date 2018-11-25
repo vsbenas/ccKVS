@@ -9,6 +9,7 @@ void *run_worker(void *arg)
 	struct thread_params params = *(struct thread_params *) arg;
 	uint16_t wrkr_lid = params.id;	/* Local ID of this worker thread*/
 	int num_server_ports = MAX_SERVER_PORTS, base_port_index = 0;
+	cyan_printf("Wrkr %d is_roce %d\n", wrkr_lid, is_roce);
 	uint8_t worker_sl = 0;
 	int remote_client_num =  CLIENT_NUM - CLIENTS_PER_MACHINE;
 	assert(MICA_MAX_BATCH_SIZE >= WORKER_MAX_BATCH);
@@ -141,7 +142,7 @@ void *run_worker(void *arg)
 	uint32_t dbg_counter = 0;
 	uint8_t requests_per_message[WORKER_MAX_BATCH] = {0};
 	uint16_t send_wr_i;
-
+    yellow_printf("wrkr %d reached the loop \n", wrkr_lid);
 	// start the big loop
 	while (1) {
 		/* Do a pass over requests from all clients */
@@ -212,7 +213,7 @@ void *run_worker(void *arg)
 		poll_workers_recv_completions(per_qp_received_messages, received_messages, cb[0],
 									  wc, multiget, &debug_recv, wr_i,  wrkr_lid,  max_reqs);
 
-		//green_printf("No of reqs %d through %d messages \n", wr_i, send_wr_i);
+		//if (wr_i > 0) green_printf("No of reqs %d through %d messages \n", wr_i, send_wr_i);
 		//if (w_stats[wrkr_lid].batches_per_worker == 0 || w_stats[wrkr_lid].batches_per_worker == MILLION)
 		//printf("Worker: %d Response %d bkt requested %llu \n", wrkr_lid, mica_resp_arr[0].type, op_ptr_arr[0]->key.bkt );
 		if ((ENABLE_WORKER_COALESCING == 1) &&  (ENABLE_ASSERTIONS == 1)) assert(send_wr_i == received_messages);
