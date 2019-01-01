@@ -16,6 +16,8 @@ void req_handler(erpc::ReqHandle *req_handle, void *) {
 	rpc->enqueue_response(req_handle);
 }
 
+void sm_handlerc(int, erpc::SmEventType, erpc::SmErrType, void *)
+{}
 
 void *run_worker(void *arg) {
 
@@ -27,19 +29,21 @@ void *run_worker(void *arg) {
 	struct thread_params params = *(struct thread_params *) arg;
 	uint16_t wrkr_lid = params.id;    /* Local ID of this worker thread*/
 	int num_server_ports = MAX_SERVER_PORTS, base_port_index = 0;
-	cyan_printf("Wrkr %d is_roce %d\n", wrkr_lid, is_roce);
 
 
 	if(machine_id == 0) {
-		printf("Starting eRPC server on worker machine 0");
+		printf("Starting eRPC server on worker machine 0\n");
 		std::string server_uri = kServerHostname + ":" + std::to_string(kUDPPort);
 		erpc::Nexus nexus(server_uri, 0, 0);
 		nexus.register_req_func(kReqType, req_handler);
 
-		rpc = new erpc::Rpc<erpc::CTransport>(&nexus, nullptr, 0, nullptr);
-		rpc->run_event_loop(100000);
+		rpc = new erpc::Rpc<erpc::CTransport>(&nexus, nullptr, 0, sm_handlerc);
+		rpc->run_event_loop(10000);
+		delete rpc;
 
 	}
+	cyan_printf("Wrkr %d is_roce %d\n", wrkr_lid, is_roce);
+
 	uint8_t worker_sl = 0;
 	int remote_client_num = CLIENT_NUM - CLIENTS_PER_MACHINE;
 	assert(MICA_MAX_BATCH_SIZE >= WORKER_MAX_BATCH);

@@ -38,7 +38,7 @@ void *run_client(void *arg)
         resp = crpc->alloc_msg_buffer_or_die(kMsgSize);
 
         crpc->enqueue_request(session_num, kReqType, &req, &resp, cont_func, 0);
-        crpc->run_event_loop(100);
+        crpc->run_event_loop(1000);
 
         delete crpc;
     }
@@ -56,7 +56,7 @@ void *run_client(void *arg)
     int *recv_q_depths, *send_q_depths;
     uint16_t remote_buf_size =  ENABLE_WORKER_COALESCING == 1 ?
                                 (GRH_SIZE + sizeof(struct wrkr_coalesce_mica_op)) : UD_REQ_SIZE ;
-//    printf("Remote clients buffer size %d\n", remote_buf_size);
+    printf("Remote clients buffer size %d\n", remote_buf_size);
     setup_queue_depths(&recv_q_depths, &send_q_depths, protocol);
     struct hrd_ctrl_blk *cb = hrd_ctrl_blk_init(clt_gid,	/* local_hid */
                                                 0, -1, /* port_index, numa_node_id */
