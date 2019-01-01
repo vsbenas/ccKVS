@@ -1,10 +1,49 @@
+
 #include "util.h"
+
 #include "inline_util.h"
+
+#include "../eRPC/erpc_config.h"
+erpc::Rpc<erpc::CTransport> *crpc;
+erpc::MsgBuffer req;
+erpc::MsgBuffer resp;
+
+void cont_func(void *, size_t) { printf("%s\n", resp.buf); }
+
+void sm_handler(int, erpc::SmEventType, erpc::SmErrType, void *) {}
 
 void *run_client(void *arg)
 {
-    cyan_printf("Size of worker req: %d, extra bytes: %d, ud req size: %d minimum worker req size %d, actual size of req_size %d  \n",
+
+
+
+    cyan_printf("CLIENT: Size of worker req: %d, extra bytes: %d, ud req size: %d minimum worker req size %d, actual size of req_size %d  \n",
                 WORKER_REQ_SIZE, EXTRA_WORKER_REQ_BYTES, UD_REQ_SIZE, MINIMUM_WORKER_REQ_SIZE, sizeof(struct wrkr_ud_req));
+
+
+    if(machine_id != 0) {
+        printf("Starting eRPC client on machine != 0");
+
+        std::string client_uri = kClientHostname + ":" + std::to_string(kUDPPort);
+        erpc::Nexus nexus(client_uri, 0, 0);
+
+        crpc = new erpc::Rpc<erpc::CTransport>(&nexus, nullptr, 0, sm_handler);
+
+        std::string server_uri = kServerHostname + ":" + std::to_string(kUDPPort);
+        int session_num = crpc->create_session(server_uri, 0);
+
+        while (!crpc->is_connected(session_num)) crpc->run_event_loop_once();
+
+        req = crpc->alloc_msg_buffer_or_die(kMsgSize);
+        resp = crpc->alloc_msg_buffer_or_die(kMsgSize);
+
+        crpc->enqueue_request(session_num, kReqType, &req, &resp, cont_func, 0);
+        crpc->run_event_loop(100);
+
+        delete crpc;
+    }
+
+
     int i, j;
     struct thread_params params = *(struct thread_params *) arg;
     int clt_gid = (machine_id * CLIENTS_PER_MACHINE) + params.id;	/* Global ID of this client thread */

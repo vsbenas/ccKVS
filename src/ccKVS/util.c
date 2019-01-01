@@ -31,15 +31,20 @@ void create_AHs(uint16_t clt_gid, struct hrd_ctrl_blk *cb)
             }
             //  printf("main:Client %d found qp %d worker %d of %d workers. Worker LID: %d\n",
             // clt_gid, qp_i, i, WORKER_NUM, wrkr_qp[qp_i][i]->lid);
-            struct ibv_ah_attr ah_attr = {
+            struct ibv_ah_attr ah_attr; /* = {
                     //-----INFINIBAND----------
                     .is_global = 0,
                     .dlid = (uint16_t) wrkr_qp[qp_i][i]->lid,
                     .sl = (uint8_t) wrkr_qp[qp_i][i]->sl,
                     .src_path_bits = 0,
-                    /* port_num (> 1): device-local port for responses to this worker */
+                     port_num (> 1): device-local port for responses to this worker
                     .port_num = (uint8_t) (local_port_i + 1),
-            };
+            };*/
+            ah_attr.is_global = 0;
+            ah_attr.dlid =  (uint16_t) wrkr_qp[qp_i][i]->lid;
+            ah_attr.sl = (uint8_t) wrkr_qp[qp_i][i]->sl;
+            ah_attr.src_path_bits = 0;
+            ah_attr.port_num = (uint8_t) (local_port_i + 1);
 
             // // <Vasilis>  ---ROCE----------
             if (is_roce == 1) {
@@ -80,15 +85,20 @@ void create_AHs(uint16_t clt_gid, struct hrd_ctrl_blk *cb)
             }
             // printf("main:Client %d found clt %d. Client LID: %d\n",
             //        clt_gid, i, clt_qp[i][qp_i]->lid);
-            struct ibv_ah_attr ah_attr = {
+            struct ibv_ah_attr ah_attr; /*= {
                     //-----INFINIBAND----------
                     .is_global = 0,
                     .dlid = (uint16_t) clt_qp[i][qp_i]->lid,
                     .sl = (uint8_t) clt_qp[i][qp_i]->sl,
                     .src_path_bits = 0,
-                    /* port_num (> 1): device-local port for responses to this worker */
+                    port_num (> 1): device-local port for responses to this worker
                     .port_num = (uint8_t) (local_port_i + 1),
-            };
+            }; */
+            ah_attr.is_global = 0;
+            ah_attr.dlid =  (uint16_t) clt_qp[i][qp_i]->lid;
+            ah_attr.sl = (uint8_t) clt_qp[i][qp_i]->sl;
+            ah_attr.src_path_bits = 0;
+            ah_attr.port_num = (uint8_t) (local_port_i + 1);
 
             // // <Vasilis>  ---ROCE----------
             if (is_roce == 1) {
@@ -134,15 +144,21 @@ void create_AHs_for_worker(uint16_t wrkr_lid, struct hrd_ctrl_blk *cb) {
         //  printf("main: Worker %d found client %d. Client LID: %d\n",
         //  	wrkr_lid, i, clt_qp[i][REMOTE_UD_QP_ID]->lid);
 
-        struct ibv_ah_attr ah_attr = {
+        struct ibv_ah_attr ah_attr; /* = {
                 //-----INFINIBAND----------
                 .is_global = 0,
                 .dlid = (uint16_t) clt_qp[i][REMOTE_UD_QP_ID]->lid,
                 .sl = clt_qp[i][REMOTE_UD_QP_ID]->sl,
                 .src_path_bits = 0,
-                /* port_num (> 1): device-local port for responses to this client */
+                 port_num (> 1): device-local port for responses to this client
                 .port_num = (uint8) (local_port_i + 1),
-        };
+        };*/
+
+        ah_attr.is_global = 0;
+        ah_attr.dlid =  (uint16_t) clt_qp[i][REMOTE_UD_QP_ID]->lid;
+        ah_attr.sl = clt_qp[i][REMOTE_UD_QP_ID]->sl;
+        ah_attr.src_path_bits = 0;
+        ah_attr.port_num = (uint8_t) (local_port_i + 1);
 
         //  ---ROCE----------
         if (is_roce == 1) {

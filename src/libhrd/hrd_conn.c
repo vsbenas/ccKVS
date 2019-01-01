@@ -1,4 +1,4 @@
-#include "hrd.h"
+#include "hrd_real.h"
 
 /*
  * If @prealloc_conn_buf != NULL, @conn_buf_size is the size of the preallocated

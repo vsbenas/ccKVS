@@ -7,10 +7,12 @@
 #define DEFAULT
 #define CORE_NUM 8
 #endif
+
 #include "optik_mod.h"
 #include "hrd.h"
 #include "main.h"
 #include "mica.h"
+
 
 #define CACHE_DEBUG 0
 #define CACHE_NUM_BKTS (8 * 1024) //(64 * 1024) //64K buckets seems to be enough to store most of 250K keys

@@ -1,4 +1,4 @@
-#include "common.h"
+#include "../eRPC/erpc_config.h"
 erpc::Rpc<erpc::CTransport> *rpc;
 
 void req_handler(erpc::ReqHandle *req_handle, void *) {

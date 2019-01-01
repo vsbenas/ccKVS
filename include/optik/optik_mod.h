@@ -161,13 +161,13 @@ optik_get_type_name()
 #  define OPTIK_LOCKED  0x1
 #  define OPTIK_FREE    0x0
 
-typedef volatile struct
+typedef struct // moved volatile inside
 {
-    uint8_t state;
-    uint8_t pending_acks;
-    uint8_t cid;
-    uint8_t lock;
-    uint32_t version;
+    uint8_t volatile state;
+    uint8_t volatile pending_acks;
+    uint8_t volatile cid;
+    uint8_t volatile lock;
+    uint32_t volatile version;
 } cache_meta;
 
 typedef cache_meta optik_lock_t;
@@ -197,7 +197,6 @@ optik_init(cache_meta* ol)
     ol->version = 0;
     ol->lock = OPTIK_FREE;
 }
-
 static inline int
 optik_lock(cache_meta* ol)
 {

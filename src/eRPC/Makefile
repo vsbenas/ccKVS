@@ -9,14 +9,11 @@ error:
 	@echo "Please choose one of the following targets: infiniband, raw, dpdk, clean"
 	@exit 2
 infiniband:
-	g++ -g -std=c++11 -o server server.cc -I ../eRPC -L ../eRPC $(LIBS) -libverbs -DINFINIBAND=true
-	g++ -g -std=c++11 -o client client.cc -I ../eRPC -L ../eRPC $(LIBS) -libverbs -DINFINIBAND=true
+	g++ -c -std=c++11 rpc.h -o rpc.o -I ../eRPC -L ../eRPC $(LIBS) -libverbs  -DINFINIBAND=true
 raw:
-	g++ -g -std=c++11 -o server server.cc -I ../eRPC -L ../eRPC $(LIBS) -libverbs -DRAW=true
-	g++ -g -std=c++11 -o client client.cc -I ../eRPC -L ../eRPC $(LIBS) -libverbs -DRAW=true
+	g++ -c -std=c++11 rpc.h -o rpc.o -I ../eRPC -L ../eRPC $(LIBS) -libverbs -DRAW=true
 dpdk:
-	g++ -g -std=c++11 -o server server.cc -I ../eRPC -I /usr/local/include/dpdk -L ../eRPC $(LIBS) -ldpdk -DDPDK=true -march=native
-	g++ -g -std=c++11 -o client client.cc -I ../eRPC -I /usr/local/include/dpdk -L ../eRPC $(LIBS) -ldpdk -DDPDK=true -march=native
+	g++ -c -std=c++11 rpc.h -o rpc.o -I ../eRPC -L ../eRPC $(LIBS) -ldpdk -DDPDK=true -march=native
 clean:
-	rm server client
+	rm rpc.o
 

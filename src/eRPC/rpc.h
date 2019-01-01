@@ -1,5 +1,3 @@
-#pragma once
-
 #include <set>
 #include "cc/timing_wheel.h"
 #include "common.h"
@@ -63,7 +61,12 @@ namespace erpc {
  *
  * @tparam TTr The unreliable transport
  */
+
+
+
 template <class TTr>
+
+
 class Rpc {
   friend class RpcTest;
 

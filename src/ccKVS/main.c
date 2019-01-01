@@ -2,6 +2,8 @@
 #include "util.h"
 #include <getopt.h>
 
+
+
 //Global Vars
 uint8_t protocol;
 optik_lock_t kv_lock;
@@ -18,6 +20,8 @@ atomic_char clt_needed_ah_ready, wrkr_needed_ah_ready;
 #if ENABLE_WORKERS_CRCW == 1
 struct mica_kv kv;
 #endif
+
+
 
 
 
@@ -70,7 +74,7 @@ int main(int argc, char *argv[])
 	assert(sizeof(struct ud_req) == UD_REQ_SIZE);
 	assert(sizeof(struct mica_op) == MICA_OP_SIZE);
 	assert(sizeof(struct mica_key) == KEY_SIZE);
-
+	int debug_val = 0;
 	cyan_printf("Size of worker req: %d, extra bytes: %d, ud req size: %d minimum worker"
 						" req size %d, actual size of req_size %d, extended cache ops size %d  \n",
 				WORKER_REQ_SIZE, EXTRA_WORKER_REQ_BYTES, UD_REQ_SIZE, MINIMUM_WORKER_REQ_SIZE, sizeof(struct wrkr_ud_req),
@@ -89,7 +93,7 @@ int main(int argc, char *argv[])
 	/* Cannot coalesce beyond 11 reqs, because when inlining is open it must be used, because NIC will read asynchronously otherwise */
 	if (CLIENT_ENABLE_INLINING == 1) assert((MAX_COALESCE_PER_MACH * HERD_GET_REQ_SIZE) + 1 <= MAXIMUM_INLINE_SIZE);
 
-
+	yellow_printf("%i\n",debug_val++);
 	int i, c;
 	is_master = -1; is_client = -1;
 	int num_threads = -1;
@@ -97,16 +101,18 @@ int main(int argc, char *argv[])
 	int base_port_index = -1, num_server_ports = -1, num_client_ports = -1;
 	is_roce = -1; machine_id = -1;
 	remote_IP = (char *)malloc(16 * sizeof(char));
-
+	yellow_printf("%i\n",debug_val++);
 
 	struct thread_params *param_arr;
 	pthread_t *thread_arr;
 
-	static struct option opts[] = {
-			{ .name = "machine-id",			.has_arg = 1, .val = 'm' },
-			{ .name = "is-roce",			.has_arg = 1, .val = 'r' },
-			{ 0 }
-	};
+	yellow_printf("%i\n",debug_val++);
+    static struct option opts[] = {
+            {"machine-id", 1,nullptr, 'm'},
+            {"is-roce", 1,nullptr,  'r'},
+            {nullptr, no_argument, nullptr, 0}
+    };
+
 
 	/* Parse and check arguments */
 	while(1) {
@@ -117,6 +123,7 @@ int main(int argc, char *argv[])
 		switch (c) {
 			case 'm':
 				machine_id = atoi(optarg);
+
 				break;
 			case 'r':
 				is_roce = atoi(optarg);
@@ -126,7 +133,7 @@ int main(int argc, char *argv[])
 				assert(false);
 		}
 	}
-
+	yellow_printf("%i\n",debug_val++);
 	printf("coalesce size %d worker inlining %d, client inlining %d \n",
 		   MAX_COALESCE_PER_MACH, WORKER_ENABLE_INLINING, CLIENT_ENABLE_INLINING);
 	yellow_printf("remote send queue depth %d, remote send ss batch %d \n", CLIENT_SEND_REM_Q_DEPTH, CLIENT_SS_BATCH);
@@ -149,7 +156,7 @@ int main(int argc, char *argv[])
 				local_req_region[offset].opcode = 0;
 			}
 		}
-
+	yellow_printf("%i\n",debug_val++);
 	clt_needed_ah_ready = 0;
 	wrkr_needed_ah_ready = 0;
 	cache_init(WORKERS_PER_MACHINE, CLIENTS_PER_MACHINE); // the first ids are taken by the workers
@@ -167,6 +174,7 @@ int main(int argc, char *argv[])
 	latency_count.remote_reqs = (uint32_t*) malloc(sizeof(uint32_t) * (LATENCY_BUCKETS + 1)); // the last latency bucket is to capture possible outliers (> than LATENCY_MAX)
   latency_count.total_measurements = 0;
 #endif
+	yellow_printf("%i\n",debug_val++);
 	pthread_attr_t attr;
 	cpu_set_t cpus_c, cpus_w, cpus_stats;
 	pthread_attr_init(&attr);
@@ -195,7 +203,7 @@ int main(int argc, char *argv[])
 			occupied_cores[w_core] = 1;
 		}
 	}
-
+	yellow_printf("%i\n",debug_val++);
 
 	if (ENABLE_SS_DEBUGGING == 1) {
 		if (CREDITS_IN_MESSAGE != CREDITS_FOR_EACH_CLIENT) red_printf("CREDITS IN MESSAGE is bigger than 1: %d, that could cause a deadlock.. \n", CREDITS_IN_MESSAGE);
@@ -206,7 +214,7 @@ int main(int argc, char *argv[])
 		if (MESSAGES_IN_BCAST_BATCH >= MIN_SS_BATCH) printf("MESSAGES_IN_BCAST_BATCH is %d, BROADCAST_SS_BATCH is %d \n", MESSAGES_IN_BCAST_BATCH, BROADCAST_SS_BATCH);
 		if (BCAST_TO_CACHE_BATCH >= MIN_SS_BATCH) printf("BCAST_TO_CACHE_BATCH is %d, ACK_SS_BATCH is %d \n", BCAST_TO_CACHE_BATCH, ACK_SS_BATCH);
 	}
-
+	yellow_printf("%i\n",debug_val++);
 
 	for(i = 0; i < CLIENTS_PER_MACHINE + WORKERS_PER_MACHINE + 1; i++)
 		pthread_join(thread_arr[i], NULL);

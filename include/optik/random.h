@@ -245,7 +245,7 @@ zipf_get_rand_array(double zipf_alpha,
     }
 
 
-  struct zipf_arr* za = malloc(sizeof(struct zipf_arr) + num_vals * sizeof(int));
+  struct zipf_arr* za = (struct zipf_arr*) malloc(sizeof(struct zipf_arr) + num_vals * sizeof(int));
   assert(za != NULL);
   za->size = num_vals;
   za->max = max;

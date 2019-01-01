@@ -335,7 +335,7 @@ uint128* mica_gen_keys(int n)
 
 	// printf("mica: Generating %d keys\n", n);
 
-	uint128 *key_arr = malloc(n * sizeof(uint128));
+	uint128 *key_arr = (uint128 *) malloc(n * sizeof(uint128));
 	assert(key_arr != NULL);
 
 	for(i = 0; i < n; i++) {

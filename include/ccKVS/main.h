@@ -1,8 +1,18 @@
 #ifndef CCKVS_MAIN_H
 #define CCKVS_MAIN_H
+extern "C" {
 #include <stdint.h>
 #include <pthread.h>
+};
+
+#ifdef __cplusplus
+#include <atomic>
+using namespace std;
+#else
 #include <stdatomic.h>
+#endif
+
+
 #include "city.h"
 #include "hrd.h"
 

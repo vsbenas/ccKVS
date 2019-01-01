@@ -156,16 +156,14 @@
 #define TEST_NZ(x) do { if ( (x)) die("error: " #x " failed (returned non-zero)." ); } while (0)
 #define TEST_Z(x)  do { if (!(x)) die("error: " #x " failed (returned zero/null)."); } while (0)
 
-extern int is_roce;
-extern int is_master;
-extern int is_client;
-extern int machine_id, machines_num;
-extern char *remote_IP, *local_IP;
-extern int remote_id;
+int is_roce, is_master, is_client;
+int machine_id, machines_num;
+char *remote_IP, *local_IP;
+int remote_id;
 
 // returns the number of remote IP addresses and fills the remoteIPs array with them
-extern int getRemoteIPs(char***);
-extern void die(const char *);
+int getRemoteIPs(char***);
+void die(const char *);
 
 /* Registry info about a QP */
 struct hrd_qp_attr {
@@ -235,22 +233,22 @@ struct hrd_ctrl_blk* hrd_ctrl_blk_init(int local_hid,
 int hrd_ctrl_blk_destroy(struct hrd_ctrl_blk *cb);
 
 /* Debug */
-extern void hrd_ibv_devinfo(void);
+void hrd_ibv_devinfo(void);
 
 /* RDMA resolution functions */
 struct ibv_device* hrd_resolve_port_index(struct hrd_ctrl_blk *cb,
 										  int port_index);
 
-extern uint16_t hrd_get_local_lid(struct ibv_context *ctx, int port_id);
+uint16_t hrd_get_local_lid(struct ibv_context *ctx, int port_id);
 
-extern void hrd_create_conn_qps(struct hrd_ctrl_blk *cb);
-extern void hrd_create_dgram_qps(struct hrd_ctrl_blk *cb);
+void hrd_create_conn_qps(struct hrd_ctrl_blk *cb);
+void hrd_create_dgram_qps(struct hrd_ctrl_blk *cb);
 
-extern void hrd_connect_qp(struct hrd_ctrl_blk *cb,
+void hrd_connect_qp(struct hrd_ctrl_blk *cb,
 					int conn_qp_idx, struct hrd_qp_attr *remote_qp_attr);
 
 /* Post 1 RECV for this queue pair for this buffer. Low performance. */
-extern void hrd_post_dgram_recv(struct ibv_qp *qp, void *buf_addr, int len, int lkey);
+void hrd_post_dgram_recv(struct ibv_qp *qp, void *buf_addr, int len, int lkey);
 
 /* Fill @wc with @num_comps comps from this @cq. Exit on error. */
 static inline uint32_t
