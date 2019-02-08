@@ -1,8 +1,7 @@
 #include "cache.h"
 #include "util.h"
 #include <getopt.h>
-
-
+#include <vector>
 
 //Global Vars
 uint8_t protocol;
@@ -22,6 +21,14 @@ struct mica_kv kv;
 #endif
 
 
+
+std::vector<char*> ip_vector; // all machines
+
+
+
+erpc::Nexus *nexus;
+
+extern void req_handler(erpc::ReqHandle *req_handle, void *);
 
 
 
@@ -141,8 +148,8 @@ int main(int argc, char *argv[])
 	assert(machine_id < MACHINE_NUM && machine_id >=0);
 	num_threads = CLIENTS_PER_MACHINE > WORKERS_PER_MACHINE ? CLIENTS_PER_MACHINE : WORKERS_PER_MACHINE;
 
-	param_arr = malloc(num_threads * sizeof(struct thread_params));
-	thread_arr = malloc((CLIENTS_PER_MACHINE + WORKERS_PER_MACHINE + 1) * sizeof(pthread_t));
+	param_arr = (struct thread_params *) malloc(num_threads * sizeof(struct thread_params));
+	thread_arr = (pthread_t *)malloc((CLIENTS_PER_MACHINE + WORKERS_PER_MACHINE + 1) * sizeof(pthread_t));
 	local_req_region = (struct mica_op *)malloc(WORKERS_PER_MACHINE * CLIENTS_PER_MACHINE * LOCAL_WINDOW * sizeof(struct mica_op));
 	memset((struct client_stats*) c_stats, 0, CLIENTS_PER_MACHINE * sizeof(struct client_stats));
 	memset((struct worker_stats*) w_stats, 0, WORKERS_PER_MACHINE * sizeof(struct worker_stats));
@@ -175,7 +182,39 @@ int main(int argc, char *argv[])
   latency_count.total_measurements = 0;
 #endif
 
-	cyan_printf("all IPs exported: %s\n",hrd_getenv("allIPs"));
+
+
+	char *ipstring = hrd_getenv("allIPs");
+
+
+	char* chars_array = strtok(ipstring, ",");
+
+	while(chars_array)
+	{
+		ip_vector.push_back(chars_array);
+		chars_array = strtok(NULL, ",");
+	}
+
+	for(size_t n = 0; n < ip_vector.size(); ++n)
+	{
+		cyan_printf("id %d: %s\n",n,ip_vector[n]);
+
+	}
+
+	string ip(ip_vector[machine_id]);
+
+	printf("Setting up eRPC Nexus at %s:%d (configured for 1 NUMA node)\n",ip_vector[machine_id],worker_port);
+
+
+	std::string server_uri = ip + ":" + std::to_string(worker_port) ;
+
+	nexus = new erpc::Nexus(server_uri, 0, 0);
+    nexus->register_req_func(kReqType, req_handler);
+
+
+
+
+
 	pthread_attr_t attr;
 	cpu_set_t cpus_c, cpus_w, cpus_stats;
 	pthread_attr_init(&attr);
@@ -219,6 +258,6 @@ int main(int argc, char *argv[])
 
 	for(i = 0; i < CLIENTS_PER_MACHINE + WORKERS_PER_MACHINE + 1; i++)
 		pthread_join(thread_arr[i], NULL);
-
+	delete nexus;
 	return 0;
 }

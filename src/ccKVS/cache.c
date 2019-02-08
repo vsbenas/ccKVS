@@ -34,7 +34,7 @@ void cache_init(int cache_id, int num_threads) {
 	cache_reset_total_ops_issued();
 	/// allocate and init metadata for the cache & threads
 	extended_cache_meta_reset(&cache.aggregated_meta);
-	cache.meta = malloc(num_threads * sizeof(struct cache_meta_stats));
+	cache.meta = (struct cache_meta_stats*) malloc(num_threads * sizeof(struct cache_meta_stats));
 	for(i = 0; i < num_threads; i++)
 		cache_meta_reset(&cache.meta[i]);
 	mica_init(&cache.hash_table, cache_id, CACHE_SOCKET, CACHE_NUM_BKTS, HERD_LOG_CAP);

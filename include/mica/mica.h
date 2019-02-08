@@ -83,6 +83,7 @@ struct wrkr_coalesce_mica_op {
 	uint8_t value[WRKR_COALESCING_BUF_SLOT_SIZE];
 };
 
+
 struct mica_slot {
 	uint32_t in_use	:1;
 	uint32_t tag	:(64 - MICA_LOG_BITS - 1);

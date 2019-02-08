@@ -1,16 +1,123 @@
 
 #include "util.h"
 
+uint16_t local_client_id;
+
+int sessions[MACHINE_NUM];
+
+erpc::Rpc<erpc::CTransport> *crpc;
+erpc::MsgBuffer ereq[MACHINE_NUM];
+erpc::MsgBuffer eresp[MACHINE_NUM];
+
+int bufferused[MACHINE_NUM];
+
 #include "inline_util.h"
 
-#include "../eRPC/erpc_config.h"
-erpc::Rpc<erpc::CTransport> *crpc;
-erpc::MsgBuffer req;
-erpc::MsgBuffer resp;
 
-void cont_func(void *, size_t) { printf("%s\n", resp.buf); }
+
+
+void receive_response(void *, size_t tag) {
+    //printf("response!\n");
+
+
+    // cyan_printf("Client %d received: %s (tag %d)\n",local_client_id, eresp[tag].buf, tag);
+    crpc->free_msg_buffer(ereq[tag]);
+    crpc->free_msg_buffer(eresp[tag]);
+    bufferused[tag]=0;
+
+}
 
 void sm_handler(int, erpc::SmEventType, erpc::SmErrType, void *) {}
+
+
+int reqs_outstanding[MACHINE_NUM];
+
+
+
+#define CACHE_OP_LENGTH (sizeof(struct mica_key) + sizeof(uint8_t) + sizeof(uint8_t) + MICA_MAX_VALUE)
+
+
+int idx[MACHINE_NUM];
+struct extended_cache_op* batch[MACHINE_NUM][WINDOW_SIZE];
+int req_length[MACHINE_NUM][WINDOW_SIZE];
+
+
+
+
+void send_erpc_request(int rm_id, struct extended_cache_op* ops, size_t request_length, size_t resp_length) {
+
+    int id = idx[rm_id];
+    assert(id < WINDOW_SIZE);
+
+    batch[rm_id][id] = ops;
+
+
+    req_length[rm_id][id] = request_length;
+
+
+    idx[rm_id]++;
+
+}
+
+void batch_requests() {
+
+    int reqs = 0;
+    for(int rm_id=0;rm_id<MACHINE_NUM;rm_id++) {
+
+
+        if( rm_id != machine_id && idx[rm_id] > 0) {
+
+
+            int session = sessions[rm_id];
+            // fill ereq
+            if(bufferused[rm_id] == 1) {
+                printf("Error! Buffer %i in use.\n",rm_id);
+                return;
+            }
+            int total_length = 0;
+
+           // printf("idx %i",idx[rm_id]);
+            for(int msg = 0; msg < idx[rm_id]; msg++) {
+
+                total_length += req_length[rm_id][msg];
+
+            }
+            assert(total_length < 1000); // for some reason ibv_post_send throws EINVAL
+
+            ereq[rm_id] = crpc->alloc_msg_buffer_or_die(total_length);
+            eresp[rm_id] = crpc->alloc_msg_buffer_or_die(total_length);
+
+            int offset = 0;
+
+            //printf("CLIENT: Sending request to session %d rm_id %d length %d values:\n",session, rm_id,total_length);
+
+            for(int msg = 0; msg < idx[rm_id]; msg++) {
+
+                memcpy(ereq[rm_id].buf + offset , batch[rm_id][msg], req_length[rm_id][msg]);
+
+                offset += req_length[rm_id][msg];
+                //mica_print_op((struct mica_op *) batch[rm_id][msg]);
+                //printf("(%i,%i,%s (%i)),",batch[rm_id][msg]->opcode,batch[rm_id][msg]->val_len,batch[rm_id][msg]->value,req_length[rm_id][msg]);
+            }
+            //printf("\n");
+
+
+            bufferused[rm_id]=1;
+
+            idx[rm_id]=0;
+
+
+
+
+            crpc->enqueue_request(session, kReqType, &ereq[rm_id], &eresp[rm_id], receive_response, rm_id);
+            reqs++;
+        }
+    }
+    printf("%d reqs sent from client\n",reqs);
+
+}
+
+
 
 void *run_client(void *arg)
 {
@@ -21,33 +128,10 @@ void *run_client(void *arg)
                 WORKER_REQ_SIZE, EXTRA_WORKER_REQ_BYTES, UD_REQ_SIZE, MINIMUM_WORKER_REQ_SIZE, sizeof(struct wrkr_ud_req));
 
 
-    if(machine_id != 0) {
-        printf("Starting eRPC client on machine != 0");
-
-        std::string client_uri = kClientHostname + ":" + std::to_string(kUDPPort);
-        erpc::Nexus nexus(client_uri, 0, 0);
-
-        crpc = new erpc::Rpc<erpc::CTransport>(&nexus, nullptr, 0, sm_handler);
-
-        std::string server_uri = kServerHostname + ":" + std::to_string(kUDPPort);
-        int session_num = crpc->create_session(server_uri, 0);
-
-        while (!crpc->is_connected(session_num)) crpc->run_event_loop_once();
-
-        req = crpc->alloc_msg_buffer_or_die(kMsgSize);
-        resp = crpc->alloc_msg_buffer_or_die(kMsgSize);
-
-        crpc->enqueue_request(session_num, kReqType, &req, &resp, cont_func, 0);
-        crpc->run_event_loop(1000);
-
-        delete crpc;
-    }
-
-
     int i, j;
     struct thread_params params = *(struct thread_params *) arg;
     int clt_gid = (machine_id * CLIENTS_PER_MACHINE) + params.id;	/* Global ID of this client thread */
-    uint16_t local_client_id = (uint16_t) (clt_gid % CLIENTS_PER_MACHINE);
+    local_client_id = (uint16_t) (clt_gid % CLIENTS_PER_MACHINE);
     uint16_t worker_qp_i = (uint16_t) ((local_client_id + machine_id) % WORKER_NUM_UD_QPS);
     uint16_t local_worker_id = (uint16_t) ((clt_gid % LOCAL_WORKERS) + ACTIVE_WORKERS_PER_MACHINE); // relevant only if local workers are enabled
     //if (local_client_id == 0 && machine_id == 0)
@@ -70,6 +154,10 @@ void *run_client(void *arg)
     struct ud_req *incoming_reqs = (struct ud_req *)(cb->dgram_buf + remote_buf_size);
 //    printf("dgram pointer %llu, incoming req ptr %llu \n", cb->dgram_buf, incoming_reqs);
 
+
+    //}
+
+
     /* ---------------------------------------------------------------------------
     ------------------------------MULTICAST SET UP-------------------------------
     ---------------------------------------------------------------------------*/
@@ -89,8 +177,11 @@ void *run_client(void *arg)
     /* -----------------------------------------------------
     --------------CONNECT WITH WORKERS AND CLIENTS-----------------------
     ---------------------------------------------------------*/
-    setup_client_conenctions_and_spawn_stats_thread(clt_gid, cb);
+    setup_client_conenctions_and_spawn_stats_thread(clt_gid, cb); // STEP 1
     if (MULTICAST_TESTING == 1) multicast_testing(mcast, clt_gid, cb);
+    // eRPC connect to worker
+
+
     /* -----------------------------------------------------
     --------------DECLARATIONS------------------------------
     ---------------------------------------------------------*/
@@ -134,6 +225,9 @@ void *run_client(void *arg)
 
     setup_ops(&ops, &next_ops, &third_ops, &resp, &next_resp, &third_resp,
               &key_homes, &next_key_homes, &third_key_homes);
+
+
+
     setup_coh_ops(&update_ops, NULL, NULL, NULL, update_resp, NULL, &coh_buf, protocol);
     setup_mrs(&ops_mr, &coh_mr, ops, coh_buf, cb);
     struct ibv_cq *coh_recv_cq = ENABLE_MULTICAST == 1 ? mcast->recv_cq : cb->dgram_recv_cq[BROADCAST_UD_QP_ID];
@@ -165,12 +259,65 @@ void *run_client(void *arg)
     memset(per_worker_outstanding, 0, WORKER_NUM);
     struct timespec start, end;
     uint32_t dbg_per_worker[3]= {0};
+    /* CONNECT TO REMOTE WORKERS
+     * */
+
+
+
+
+
+    //if(machine_id != 0) {
+    printf("Creating rpc for client %d using rpcid %d\n", local_client_id, WORKERS_PER_MACHINE + local_client_id);
+    crpc = new erpc::Rpc<erpc::CTransport>(nexus, nullptr, WORKERS_PER_MACHINE + local_client_id, sm_handler);
+    crpc->retry_connect_on_invalid_rpc_id = true;
+    printf("done\n");
+
+    for (int i = 0; i < ip_vector.size(); i++) {
+
+        if(i != machine_id) {
+
+            string remote_ip(ip_vector[i]);
+
+            printf("Client %d connecting to worker %d at machine (%s:%i)\n", local_client_id, local_client_id,
+                   ip_vector[i], worker_port);
+
+
+            std::string server_uri = remote_ip + ":" + std::to_string(worker_port);
+            int session_num = crpc->create_session(server_uri, local_client_id);
+
+            sessions[i] = session_num;
+
+            cyan_printf("Trying to connect...");
+            while (!crpc->is_connected(session_num)) crpc->run_event_loop_once();
+            cyan_printf("Connected! Session id: %d\n",session_num);
+
+            bufferused[i] = 0;
+
+        }
+
+    }
+
+
+
+
 
 
     /* ---------------------------------------------------------------------------
     ------------------------------START LOOP--------------------------------
     ---------------------------------------------------------------------------*/
     while (1) {
+
+        crpc->run_event_loop_once();
+
+        int _continue = 0;
+        for(int rm_id = 0; rm_id < MACHINE_NUM; rm_id ++) {
+            if(bufferused[rm_id] == 1) {
+                _continue=1;
+            }
+        }
+        if(_continue)
+            continue;
+
         // Swap the op buffers to facilitate correct ordering
         swap_ops(&ops, &next_ops, &third_ops,
                  &resp, &next_resp, &third_resp,
@@ -185,7 +332,7 @@ void *run_client(void *arg)
         ------------------------------Refill REMOTE  RECVS--------------------------------
         ---------------------------------------------------------------------------*/
 
-        refill_recvs(rem_req_i, rem_recv_wr, cb);
+        //refill_recvs(rem_req_i, rem_recv_wr, cb);
 
         /* ---------------------------------------------------------------------------
         ------------------------------ POLL BROADCAST REGION--------------------------
@@ -217,6 +364,16 @@ void *run_client(void *arg)
                                                key_homes, 0, next_op_i, &latency_info, &start,
                                                hottest_keys_pointers);
 
+
+        //printf("trace_iter: %lld next_op_i %d\n",trace_iter,next_op_i);
+
+
+
+        //sleep(1);
+
+
+
+
         /* ---------------------------------------------------------------------------
         ------------------------------BROADCASTS--------------------------------------
         ---------------------------------------------------------------------------*/
@@ -236,6 +393,8 @@ void *run_client(void *arg)
         rem_req_i = 0; next_op_i = 0;
 
         empty_req_percentage = c_stats[local_client_id].empty_reqs_per_trace;
+
+
         if (ENABLE_MULTI_BATCHES == 1) {
             find_responses_to_enable_multi_batching (empty_req_percentage, cb, wc,
                                                      per_worker_outstanding, &outstanding_rem_reqs, local_client_id);
@@ -249,7 +408,13 @@ void *run_client(void *arg)
                                     rem_send_sgl, wc, remote_tot_tx, worker_qp_i,
                                     per_worker_outstanding, &outstanding_rem_reqs, remote_for_each_worker,
                                     ws, clt_gid, local_client_id, NULL, local_worker_id, protocol,
-                                    &latency_info, &start, &local_measure, hottest_keys_pointers);
+                                    &latency_info, &start, &local_measure, hottest_keys_pointers); // IMPORTANT
+
+
+
+
+
+        //cyan_printf("%d wr_i\n",wr_i);
         /* ---------------------------------------------------------------------------
         ------------------------------ POLL & SEND--------------------------------
         ---------------------------------------------------------------------------*/
@@ -258,9 +423,26 @@ void *run_client(void *arg)
             rem_req_i = wr_i;
         }
 
-        poll_and_send_remotes(previous_wr_i, local_client_id, &outstanding_rem_reqs,
+        /*poll_and_send_remotes(previous_wr_i, local_client_id, &outstanding_rem_reqs,
                               cb, wc, prev_rem_req_i, wr_i, rem_send_wr, rem_req_i, &remote_tot_tx,
                               rem_send_sgl, &latency_info, &start);
+        */
+
+        if(wr_i > 0) { // from poll_and_send_remotes
+
+            c_stats[local_client_id].remote_messages_per_client += wr_i;
+
+            c_stats[local_client_id].batches_per_client++;
+
+        }
+        else if (ENABLE_STAT_COUNTING == 1) {
+            c_stats[local_client_id].wasted_loops++;
+        }
+
+        batch_requests();
+        //printf("Sending request...");
+       // memset(ereq.buf, kAppDataByte, FLAGS_req_size);
+        //crpc->enqueue_request(session_num, kReqType, &ereq, &eresp, cont_func, 0);
 
     }
     return NULL;

@@ -14,10 +14,17 @@
 #include <netinet/in.h>
 #include <netdb.h>
 // <vasilis>
+#include <vector>
+
 
 #define DGRAM_BUF_SIZE 4096
 
 extern uint64_t seed;
+
+#include "../eRPC/erpc_config.h"
+
+extern std::vector<char*> ip_vector;
+extern erpc::Nexus *nexus;
 
 /* ---------------------------------------------------------------------------
 ------------------------------STATS --------------------------------------
@@ -148,6 +155,10 @@ void check_protocol(int);
 int pin_worker(int w_id);
 // pin a client thread to a core
 int pin_client(int c_id);
+
+
+
+void send_erpc_request(int rm_id, struct extended_cache_op* ops, size_t req_length, size_t resp_length);
 
 
 #endif /* CCKVS_UTILS_H */

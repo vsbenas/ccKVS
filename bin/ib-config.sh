@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-echo 50 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
+echo 250 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
 echo 10000000001 > /proc/sys/kernel/shmall
 echo 10000000001 > /proc/sys/kernel/shmmax
 #ifconfig ib0 129.215.165.8  netmask 255.255.254.0

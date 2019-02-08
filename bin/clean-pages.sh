@@ -16,7 +16,7 @@ for i in `seq 0 28`; do
 	sudo ipcrm -M $key 2>/dev/null
 done
 
-: ${MEMCACHED_IP:?"Need to set MEMCACHED_IP non-empty"}
+#: ${MEMCACHED_IP:?"Need to set MEMCACHED_IP non-empty"}
 
 
 # blue "Removing hugepages"
@@ -24,5 +24,5 @@ done
 shm-rm.sh 1>/dev/null 2>/dev/null
 
 # blue "Reset server QP registry"
-sudo killall memcached
-memcached -l 0.0.0.0 1>/dev/null 2>/dev/null &
+#sudo killall memcached
+#memcached -l 0.0.0.0 1>/dev/null 2>/dev/null &

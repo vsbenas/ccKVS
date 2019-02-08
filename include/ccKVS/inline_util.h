@@ -736,6 +736,8 @@ static inline void forge_remote_wr(uint16_t wr_i, uint16_t op_i, uint16_t wn, ui
 	rem_send_wr[wr_i].wr.ud.remote_qpn = remote_wrkr_qp[worker_qp_i][worker_id].qpn;
 	rem_send_sgl[wr_i].length = size_of_op;
 	rem_send_sgl[wr_i].addr = (uint64_t) (uintptr_t) (ops + op_i);
+
+
 	//  yellow_printf("Client %d: Remote op %d with key bkt %u , machine %d , worker %d, ud_qp %d, opcode %d  \n", local_client_id, op_i, ops[op_i].key.bkt,
 	//	 				rm_id, wn, worker_qp_i,ops[op_i].opcode);
 
@@ -755,6 +757,8 @@ static inline void forge_remote_wr(uint16_t wr_i, uint16_t op_i, uint16_t wn, ui
 		hrd_poll_cq(cb->dgram_send_cq[REMOTE_UD_QP_ID], 1, wc);
 	}
 }
+
+
 
 // Handle all cold requests: issue the locals erquests and create the remote work requests
 // move to the next op buffer all requests that can not be serviced this cycle
@@ -797,10 +801,19 @@ static inline uint16_t handle_cold_requests(struct extended_cache_op* ops, struc
 		resp[op_i].type = UNSERVED_CACHE_MISS;
 		rm_id = key_homes[op_i].machine;	/* Choose a remote machine */
 		if (ENABLE_ASSERTIONS == 1) assert(DISABLE_LOCALS == 0 || rm_id != machine_id);
-		if (ENABLE_THREAD_PARTITIONING_C_TO_W == 1) wn = (local_client_id + machine_id) % ACTIVE_WORKERS_PER_MACHINE;//
-		else wn = key_homes[op_i].worker % ACTIVE_WORKERS_PER_MACHINE;	/* Choose a worker */
+		if (ENABLE_THREAD_PARTITIONING_C_TO_W == 1)
+			wn = (local_client_id + machine_id) % ACTIVE_WORKERS_PER_MACHINE;//
+		else
+			wn = key_homes[op_i].worker % ACTIVE_WORKERS_PER_MACHINE;	/* Choose a worker */
+
+
 		worker_id = rm_id * WORKERS_PER_MACHINE + wn;
-		size_of_op = ops[op_i].opcode == CACHE_OP_PUT ? HERD_PUT_REQ_SIZE : HERD_GET_REQ_SIZE;
+
+
+        size_of_op = ops[op_i].opcode == CACHE_OP_PUT ? HERD_PUT_REQ_SIZE : HERD_GET_REQ_SIZE;
+
+
+
 
 
 		/*------------------------------ LOCAL REQUESTS--------------------------------*/
@@ -812,7 +825,13 @@ static inline uint16_t handle_cold_requests(struct extended_cache_op* ops, struc
 			op_i++;
 			continue;
 		}
-		// overload part of the key to write the clt_gid
+
+
+
+
+
+
+        // overload part of the key to write the clt_gid
 		struct remote_meta* tmp =  (struct remote_meta*) &ops[op_i].key.meta;
 		tmp->clt_gid = clt_gid;
 
@@ -827,20 +846,40 @@ static inline uint16_t handle_cold_requests(struct extended_cache_op* ops, struc
 
 		per_worker_outstanding[worker_id]++;
 		if (per_worker_outstanding[worker_id] > WS_PER_WORKER ) {
-			//			printf("outstanding %d for worker %d \n", per_worker_outstanding[worker_id], worker_id);
+			//
+			// 		printf("outstanding %d for worker %d \n", per_worker_outstanding[worker_id], worker_id);
+
+			// [REMOVED]
 			enum control_flow_directive cf = handle_lack_of_credits_for_remotes(ops, next_ops, resp,
 																				next_resp, key_homes, next_key_homes, &op_i, next_op_i, local_client_id, rem_send_wr,
 																				&wn, &worker_id, rm_id, per_worker_outstanding, wr_i, *outstanding_rem_reqs, latency_info);
 			if (cf == continue_) continue;
 			else if (cf == break_) break;
+
+
+			// send the batch request
+
+
+
+
+
 		}
 
 		remote_for_each_worker[worker_id]++;
-		/* Forge the RDMA work request */
-		forge_remote_wr(wr_i, op_i, wn, rm_id, local_client_id, size_of_op, cb, rem_send_wr, rem_send_sgl, ops,
-						wc, remote_tot_tx, worker_id, worker_qp_i);
 
-		wr_i++;
+		//add_erpc_request(rm_id, &ops[op_i], size_of_op, size_of_op);
+		//mica_print_op((struct mica_op*) &ops[op_i]);
+		send_erpc_request((int) rm_id, &ops[op_i], size_of_op, size_of_op);
+
+
+
+		//Forge the RDMA work request [REMOVED]
+		//forge_remote_wr(wr_i, op_i, wn, rm_id, local_client_id, size_of_op, cb, rem_send_wr, rem_send_sgl, ops,
+		//				wc, remote_tot_tx, worker_id, worker_qp_i); // REMOVE RDMA?
+
+
+
+        wr_i++;
 		(*rem_req_i)++;
 		resp[op_i].type = EMPTY;
 		op_i++;

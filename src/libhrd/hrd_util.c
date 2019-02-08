@@ -12,10 +12,10 @@ int getRemoteIPs(char*** remote_IPs)
 	int i, count = 1;
 	for (i = 0; remote_IP[i]; i++) { count += (remote_IP[i] == ',');}
 	//printf("Found %d IPs\n", count);
-	//printf("Remote IPs: %s\n", remote_IP);
+	printf("Remote IP: %s\n", remote_IP);
 	(*remote_IPs)[0] = (char *)malloc(16 * sizeof(char));
 	(*remote_IPs)[0] = strtok(remote_IP, ",");
-	printf("Remote IP: %s\n", (*remote_IPs)[0]);
+	printf("Remote IPs: %s\n", (*remote_IPs)[0]);
 
 	for (i = 1; i < count; i++) {
 		(*remote_IPs)[i] = (char *)malloc(16 * sizeof(char));
@@ -239,7 +239,7 @@ void* hrd_malloc_socket(int shm_key, int size, int socket_id)
 		int page_no = CEILING(size, HUGE_PAGE_SIZE);
 		int i;
 		for (i = 0; i < page_no; i++)
-			memset(buf + i * HUGE_PAGE_SIZE, 0, 1);
+			memset(((uint8_t*) buf) + i * HUGE_PAGE_SIZE, 0, 1);
 	}
 
 	return buf;

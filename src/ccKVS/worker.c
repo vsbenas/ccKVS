@@ -1,23 +1,83 @@
 #include "util.h"
 #include "inline_util.h"
 
-
-#include "../eRPC/erpc_config.h"
-
-
+uint16_t wrkr_lid;
 erpc::Rpc<erpc::CTransport> *rpc;
 
-void req_handler(erpc::ReqHandle *req_handle, void *) {
-	auto &resp = req_handle->pre_resp_msgbuf;
-	rpc->resize_msg_buffer(&resp, kMsgSize);
-	sprintf(reinterpret_cast<char *>(resp.buf), "hello");
+int reqs_per_loop = 0;
 
-	req_handle->prealloc_used = true;
+
+void req_handler(erpc::ReqHandle *req_handle, void *) {
+    //auto &req = req_handle->pre_req_msgbuf;
+
+	auto &resp = req_handle->pre_resp_msgbuf;
+
+    const erpc::MsgBuffer *req = req_handle->get_req_msgbuf();
+    size_t size = req->get_data_size();
+
+
+	//struct extended_cache_op* ops = reinterpret_cast<struct extended_cache_op*>(req->buf);
+    struct mica_op *ops = reinterpret_cast<struct mica_op*>(req->buf);
+
+    //struct mica_op **ops = malloc
+
+
+
+    rpc->resize_msg_buffer(&resp, size);
+
+
+    struct mica_resp mica_resp_arr[WORKER_MAX_BATCH];
+    struct mica_op *op_ptr_arr[WORKER_MAX_BATCH];
+
+    int offset = 0;
+    int wr_i = 0;
+    while(offset < size) {
+
+        ops = reinterpret_cast<struct mica_op*>(req->buf + offset);
+
+        int size_of_op = ops->opcode == CACHE_OP_PUT ? HERD_PUT_REQ_SIZE : HERD_GET_REQ_SIZE;
+
+		//mica_print_op(ops);
+        op_ptr_arr[wr_i] = ops;
+
+
+        offset += size_of_op;
+
+        wr_i++;
+    }
+    //printf("wr_i = %i\n",wr_i);
+
+
+    KVS_BATCH_OP(&kv, wr_i, op_ptr_arr, mica_resp_arr);
+
+    rpc->resize_msg_buffer(&resp, size);
+
+
+    //printf("WORKER: Request size: %d opcode: %d val_len: %d val: %s received in worker %d\n",size,ops->opcode,ops->val_len,(char *) ops->value, wrkr_lid);
+    //printf("WORKER: Request opcode: %d val_len: %d val: %s received in worker %d\n",op->opcode,op->val_len,(char *) op->value, wrkr_lid);
+
+    memcpy((void *) resp.buf, (void *) req->buf, size);
+
+	w_stats[wrkr_lid].batches_per_worker++;
+	w_stats[wrkr_lid].remotes_per_worker += wr_i;
+
+    req_handle->prealloc_used = true;
 	rpc->enqueue_response(req_handle);
+    reqs_per_loop++;
 }
 
-void sm_handlerc(int, erpc::SmEventType, erpc::SmErrType, void *)
-{}
+int connections = 0;
+void sm_handlerc(int, erpc::SmEventType sm_event_type, erpc::SmErrType, void *)
+{
+	if (sm_event_type == erpc::SmEventType::kConnected)
+		connections++;
+	else
+		connections--;
+
+}
+
+
+
 
 void *run_worker(void *arg) {
 
@@ -27,13 +87,14 @@ void *run_worker(void *arg) {
 	int i, j, ret;
 	uint16_t qp_i;
 	struct thread_params params = *(struct thread_params *) arg;
-	uint16_t wrkr_lid = params.id;    /* Local ID of this worker thread*/
+	wrkr_lid = params.id;    /* Local ID of this worker thread*/
 	int num_server_ports = MAX_SERVER_PORTS, base_port_index = 0;
 
 
+	/*
 	if(machine_id == 0) {
 		printf("Starting eRPC server on worker machine 0\n");
-		std::string server_uri = kServerHostname + ":" + std::to_string(kUDPPort);
+		std::string server_uri = ip_vector[0] + ":" + port;
 		erpc::Nexus nexus(server_uri, 0, 0);
 		nexus.register_req_func(kReqType, req_handler);
 
@@ -41,8 +102,20 @@ void *run_worker(void *arg) {
 		rpc->run_event_loop(10000);
 		delete rpc;
 
-	}
+	}*/
 	cyan_printf("Wrkr %d is_roce %d\n", wrkr_lid, is_roce);
+
+
+
+	cyan_printf("Setting up eRPC server for worker ID %d\n",wrkr_lid);
+
+
+
+	rpc = new erpc::Rpc<erpc::CTransport>(nexus, nullptr, wrkr_lid, sm_handlerc);
+
+	//int
+    // rpc->run_event_loop(100000);
+	
 
 	uint8_t worker_sl = 0;
 	int remote_client_num = CLIENT_NUM - CLIENTS_PER_MACHINE;
@@ -54,8 +127,9 @@ void *run_worker(void *arg) {
 	------------Set up the KVS partition-----------------------------------------
 	---------------------------------------------------------------------------*/
 #if ENABLE_WORKERS_CRCW == 0
-	struct mica_kv kv;
-	mica_init(&kv, (int) wrkr_lid, 0, HERD_NUM_BKTS, HERD_LOG_CAP); //0 refers to numa node
+    struct mica_kv kv;
+
+    mica_init(&kv, (int) wrkr_lid, 0, HERD_NUM_BKTS, HERD_LOG_CAP); //0 refers to numa node
 	mica_populate_fixed_len(&kv, HERD_NUM_KEYS, HERD_VALUE_SIZE);
 #endif
 
@@ -67,8 +141,8 @@ void *run_worker(void *arg) {
 	struct hrd_ctrl_blk *cb[MAX_SERVER_PORTS];
 	uint32_t wrkr_buf_size = worker_req_size * CLIENTS_PER_MACHINE * (MACHINE_NUM - 1) * WS_PER_WORKER;
 
-	int *wrkr_recv_q_depth = malloc(WORKER_NUM_UD_QPS * sizeof(int));
-	int *wrkr_send_q_depth = malloc(WORKER_NUM_UD_QPS * sizeof(int));
+	int *wrkr_recv_q_depth = (int*)malloc(WORKER_NUM_UD_QPS * sizeof(int));
+	int *wrkr_send_q_depth = (int*)malloc(WORKER_NUM_UD_QPS * sizeof(int));
 	for (qp_i = 0; qp_i < WORKER_NUM_UD_QPS; qp_i++) {
 		wrkr_recv_q_depth[qp_i] = WORKER_RECV_Q_DEPTH; // TODO fix this as a performance opt(it should be at the qp granularity)
 		wrkr_send_q_depth[qp_i] = WORKER_SEND_Q_DEPTH; // TODO fix this as a performance opt
@@ -164,7 +238,7 @@ void *run_worker(void *arg) {
 	int clt_i = -1;
 	uint16_t last_measured_wr_i = 0, resp_buf_i = 0, received_messages,
 			wr_i = 0, per_qp_received_messages[WORKER_NUM_UD_QPS] = {0};
-	struct mica_op *dbg_buffer = malloc(HERD_PUT_REQ_SIZE);
+	struct mica_op *dbg_buffer = (struct mica_op *)malloc(HERD_PUT_REQ_SIZE);
 	assert(CLIENTS_PER_MACHINE % num_server_ports == 0);
 
 	struct mica_op *local_op_ptr_arr[CLIENTS_PER_MACHINE * LOCAL_WINDOW];
@@ -182,8 +256,24 @@ void *run_worker(void *arg) {
 	uint16_t send_wr_i;
 	yellow_printf("wrkr %d reached the loop \n", wrkr_lid);
 	// start the big loop
+	//rpc->run_event_loop(-1);
 	while (1) {
 		/* Do a pass over requests from all clients */
+        reqs_per_loop = 0;
+
+		//rpc->run_event_loop_once();
+        rpc->run_event_loop(100);
+
+        if (reqs_per_loop == 0) {
+            w_stats[wrkr_lid].empty_polls_per_worker++;
+            continue; // no request was found, start over
+        }
+        else {
+            //cyan_printf("%d\n",reqs_per_loop);
+            w_stats[wrkr_lid].batches_per_worker++;
+        }
+        //sleep(1);
+
 		wr_i = 0;
 
 		/* ---------------------------------------------------------------------------
@@ -199,7 +289,7 @@ void *run_worker(void *arg) {
 
 		/* ---------------------------------------------------------------------------
 		------------------------------ POLL REQUEST REGION--------------------------
-		---------------------------------------------------------------------------*/
+		---------------------------------------------------------------------------
 		// Pick up the remote requests one by one
 		qp_i = 0;
 		bool multiget = false;
@@ -220,8 +310,10 @@ void *run_worker(void *arg) {
 																&received_messages, // TODO choose whether to break on wr_i or send_wr_i
 																per_qp_received_messages,
 																&next_req_ptr, &get_i, &get_num, requests_per_message);
-			if (cf == break_) break;
-			else if (cf == continue_) continue;
+			if (cf == break_)
+			    break;
+			else if (cf == continue_)
+			    continue;
 			request_bookkeeping(multiget, pull_ptr, qp_i, per_qp_buf_slots, &next_req_ptr, &received_messages,
 								per_qp_received_messages, req[qp_i], &get_i, send_wr_i, wr,
 								nb_tx_tot, // TODO make sure latency is not affected by send_wr_i
@@ -231,7 +323,7 @@ void *run_worker(void *arg) {
 			op_ptr_arr[wr_i] = next_req_ptr; // MICA array of ptrs
 
 			//sgl[wr_i].length = HERD_PUT_REQ_SIZE;
-			//nb_tx_tot[send_qp_i]++;/* Must increment inside loop */
+			//nb_tx_tot[send_qp_i]++; Must increment inside loop
 			wr_i++;
 			if (ENABLE_WORKER_COALESCING == 0 || ((multiget == 0) || (get_i == 1)))
 				send_wr_i++;
@@ -246,12 +338,13 @@ void *run_worker(void *arg) {
 			w_stats[wrkr_lid].empty_polls_per_worker++;
 			continue; // no request was found, start over
 		}
+
 		KVS_BATCH_OP(&kv, wr_i, op_ptr_arr, mica_resp_arr);
 
 
 		/* ---------------------------------------------------------------------------
 		------------------------------ POLL COMPLETIONS------------------------
-		---------------------------------------------------------------------------*/
+		---------------------------------------------------------------------------
 		poll_workers_recv_completions(per_qp_received_messages, received_messages, cb[0],
 									  wc, multiget, &debug_recv, wr_i, wrkr_lid, max_reqs);
 
@@ -262,15 +355,18 @@ void *run_worker(void *arg) {
 		append_responses_to_work_requests_and_delete_requests(wr_i, op_ptr_arr, wr,
 															  mica_resp_arr, &resp_buf_i,
 															  wrkr_lid, sgl, response_buffer, requests_per_message);
-
-		/* ---------------------------------------------------------------------------
+		//print_mica_op(response_buffer);
+		 ---------------------------------------------------------------------------
 		------------------------------ POST RECEIVES AND SENDS------------------------
-		---------------------------------------------------------------------------*/
+		---------------------------------------------------------------------------
 		worker_post_receives_and_sends(send_wr_i, cb[0], per_qp_received_messages, recv_wr, recv_sgl, push_ptr,
 									   qp_buf_base,
 									   per_qp_buf_slots, &debug_recv, clts_per_qp, wr, send_qp_i, wrkr_lid,
 									   last_measured_wr_i, wr_i);
 
+        */
+
 	}
+	delete rpc;
 	return NULL;
 }

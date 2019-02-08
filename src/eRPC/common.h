@@ -22,9 +22,9 @@
 
 namespace erpc {
 
-#define _unused(x) ((void)(x))  // Make production build happy
-#define likely(x) __builtin_expect(!!(x), 1)
-#define unlikely(x) __builtin_expect(!!(x), 0)
+// #define _unused(x) ((void)(x))  // Make production build happy
+// #define likely(x) __builtin_expect(!!(x), 1)
+// #define unlikely(x) __builtin_expect(!!(x), 0)
 
 #define KB(x) (static_cast<size_t>(x) << 10)
 #define MB(x) (static_cast<size_t>(x) << 20)

@@ -476,7 +476,7 @@ void dump_stats_2_file(struct stats* st){
 }
 
 int spawn_stats_thread() {
-    pthread_t *thread_arr = malloc(sizeof(pthread_t));
+    pthread_t *thread_arr = (pthread_t *)malloc(sizeof(pthread_t));
 //    pthread_attr_t attr;
 //    cpu_set_t cpus_stats;
 //    pthread_attr_init(&attr);
@@ -540,11 +540,11 @@ void post_coh_recvs(struct hrd_ctrl_blk *cb, int* push_ptr, struct mcast_essenti
     for(i = 0; i < MACHINE_NUM - 1; i++) {
         for(j = 0; j < credits; j++) {
             if (ENABLE_MULTICAST == 1) {
-                hrd_post_dgram_recv(mcast->recv_qp,	(void *) (buf + *push_ptr * UD_REQ_SIZE),
+                hrd_post_dgram_recv(mcast->recv_qp,	(void*) ((uint8_t*) buf + *push_ptr * UD_REQ_SIZE),
                                     UD_REQ_SIZE, mcast->recv_mr->lkey);
             }
             else hrd_post_dgram_recv(cb->dgram_qp[BROADCAST_UD_QP_ID],
-                                     (void *) (buf + *push_ptr * UD_REQ_SIZE), UD_REQ_SIZE, cb->dgram_buf_mr->lkey);
+                                     (void*) ((uint8_t*) buf + *push_ptr * UD_REQ_SIZE), UD_REQ_SIZE, cb->dgram_buf_mr->lkey);
             HRD_MOD_ADD(*push_ptr, max_reqs);
         }
     }
@@ -557,8 +557,8 @@ void setup_queue_depths(int **recv_q_depths, int **send_q_depths, int protocol)
     /* 1st Dgram for communication between clients and servers
       2nd Dgram for Broadcasting
       3rd Dgram for Flow Control (Credit-based) */
-    *send_q_depths = malloc(CLIENT_UD_QPS * sizeof(int));
-    *recv_q_depths = malloc(CLIENT_UD_QPS * sizeof(int));
+    *send_q_depths = (int*) malloc(CLIENT_UD_QPS * sizeof(int));
+    *recv_q_depths = (int*) malloc(CLIENT_UD_QPS * sizeof(int));
     if (protocol == SEQUENTIAL_CONSISTENCY) {
         (*recv_q_depths)[REMOTE_UD_QP_ID] = CLIENT_RECV_REM_Q_DEPTH;
         (*recv_q_depths)[BROADCAST_UD_QP_ID] = ENABLE_MULTICAST == 1 ? 1 : SC_CLIENT_RECV_BR_Q_DEPTH;
@@ -612,17 +612,17 @@ void setup_ops(struct extended_cache_op **ops, struct extended_cache_op **next_o
 {
     int i;
     uint32_t extended_ops_size = (OPS_BUFS_NUM * CACHE_BATCH_SIZE * (sizeof(struct extended_cache_op)));
-    *ops = memalign(4096, extended_ops_size);
+    *ops = (struct extended_cache_op *)memalign(4096, extended_ops_size);
     memset(*ops, 0, extended_ops_size);
     *next_ops = &((*ops)[CACHE_BATCH_SIZE]);
     *third_ops = &((*ops)[2 * CACHE_BATCH_SIZE]); //only used when no Inlining happens
 
 
-    *resp = memalign(4096, OPS_BUFS_NUM * CACHE_BATCH_SIZE * sizeof(struct mica_resp));
+    *resp = (struct mica_resp *)memalign(4096, OPS_BUFS_NUM * CACHE_BATCH_SIZE * sizeof(struct mica_resp));
     *next_resp = &((*resp)[CACHE_BATCH_SIZE]);
     *third_resp = &((*resp)[2 * CACHE_BATCH_SIZE]);
 
-    *key_homes = memalign(4096, OPS_BUFS_NUM * CACHE_BATCH_SIZE * sizeof(struct key_home));
+    *key_homes = (struct key_home *)memalign(4096, OPS_BUFS_NUM * CACHE_BATCH_SIZE * sizeof(struct key_home));
     *next_key_homes = &((*key_homes)[CACHE_BATCH_SIZE]);
     *third_key_homes = &((*key_homes)[2 * CACHE_BATCH_SIZE]);
 
@@ -641,7 +641,7 @@ void setup_coh_ops(struct cache_op **update_ops, struct cache_op **ack_bcast_ops
 {
     check_protocol(protocol);
     int i;
-    *coh_buf = memalign(4096, COH_BUF_SIZE);
+    *coh_buf = (struct mica_op *)memalign(4096, COH_BUF_SIZE);
     uint16_t cache_op_size = sizeof(struct cache_op);
     uint16_t small_cache_op_size = sizeof(struct small_cache_op);
     *update_ops = (struct cache_op *)malloc(BCAST_TO_CACHE_BATCH * cache_op_size); /* Batch of incoming broadcasts for the Cache*/
@@ -820,7 +820,7 @@ void setup_worker_WRs(struct wrkr_coalesce_mica_op **response_buffer, struct ibv
     if ((WORKER_ENABLE_INLINING == 0) || (ENABLE_WORKER_COALESCING == 1)) {
         uint32_t resp_buf_size = ENABLE_WORKER_COALESCING == 1 ? sizeof(struct wrkr_coalesce_mica_op)* WORKER_SS_BATCH :
                                  sizeof(struct mica_op)* WORKER_SS_BATCH; //the buffer needs to be large enough to deal with NIC asynchronous reads
-        *response_buffer = malloc(resp_buf_size);
+        *response_buffer = (struct wrkr_coalesce_mica_op *)malloc(resp_buf_size);
         resp_mr = register_buffer(cb->pd, (void*)(*response_buffer), resp_buf_size);
     }
 
@@ -873,13 +873,13 @@ void init_multicast(struct mcast_info **mcast_data, struct mcast_essentials **mc
                                 (GRH_SIZE + sizeof(struct wrkr_coalesce_mica_op)) : UD_REQ_SIZE;
     size_t dgram_buf_size = (size_t) (protocol == SEQUENTIAL_CONSISTENCY ? SC_CLT_BUF_SIZE + remote_buf_size : LIN_CLT_BUF_SIZE + remote_buf_size);
     int recv_q_depth = protocol == SEQUENTIAL_CONSISTENCY ? SC_CLIENT_RECV_BR_Q_DEPTH : LIN_CLIENT_RECV_BR_Q_DEPTH;
-    *mcast_data = malloc(sizeof(struct mcast_info));
+    *mcast_data = (struct mcast_info *)malloc(sizeof(struct mcast_info));
     (*mcast_data)->clt_id = local_client_id;
     setup_multicast(*mcast_data, recv_q_depth);
     // char buf[40];
     // inet_ntop(AF_INET6, (*mcast_data)->mcast_ud_param.ah_attr.grh.dgid.raw, buf, 40);
     // printf("client: joined dgid: %s mlid 0x%x sl %d\n", buf,	(*mcast_data)->mcast_ud_param.ah_attr.dlid, (*mcast_data)->mcast_ud_param.ah_attr.sl);
-    *mcast = malloc(sizeof(struct mcast_essentials));
+    *mcast = (struct mcast_essentials *)malloc(sizeof(struct mcast_essentials));
     (*mcast)->send_ah = ibv_create_ah(cb->pd, &((*mcast_data)->mcast_ud_param.ah_attr));
     (*mcast)->qpn  =  (*mcast_data)->mcast_ud_param.qp_num;
     (*mcast)->qkey  =  (*mcast_data)->mcast_ud_param.qkey;
