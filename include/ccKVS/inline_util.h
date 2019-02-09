@@ -869,7 +869,7 @@ static inline uint16_t handle_cold_requests(struct extended_cache_op* ops, struc
 
 		//add_erpc_request(rm_id, &ops[op_i], size_of_op, size_of_op);
 		//mica_print_op((struct mica_op*) &ops[op_i]);
-		send_erpc_request((int) rm_id, &ops[op_i], size_of_op, size_of_op);
+		add_erpc_request((int) rm_id, &ops[op_i], size_of_op, size_of_op);
 
 
 
@@ -1084,21 +1084,42 @@ static inline void perform_broadcasts_SC(struct extended_cache_op *ops, uint8_t 
 			op_i++;
 			continue; // We only care about hot writes
 		}
-		if (!check_broadcast_credits(credits, cb, credit_wc, credit_debug_cnt, SC_UPD_VC, protocol)) {
+		/*if (!check_broadcast_credits(credits, cb, credit_wc, credit_debug_cnt, SC_UPD_VC, protocol)) {
 			break;
 		}
 		forge_bcast_wrs_SC(op_i, ops, cb, coh_send_sgl, coh_send_wr, coh_buf, coh_buf_i, br_tx, local_client_id, br_i);
+		*/
+		// eRPC
 
-		for (j = 0; j < MACHINE_NUM; j++) { credits[SC_UPD_VC][j]--; }
-		br_i++;
+		ops[op_i].opcode = CACHE_OP_UPD;
+
+		//batch_cache_op(ops + op_i, HERD_PUT_REQ_SIZE);
+
+		add_cache_op(ops + op_i, HERD_PUT_REQ_SIZE);
+
+
+		memcpy(coh_buf + (*coh_buf_i), ops + op_i, HERD_PUT_REQ_SIZE);
+
+
+		//coh_send_sgl[br_i].addr = (uint64_t) (uintptr_t) (coh_buf + (*coh_buf_i));
+
+
+		MOD_ADD_WITH_BASE((*coh_buf_i), COH_BUF_SLOTS, 0);
+
+
+
 		op_i++;
-		if ((*br_tx) % SC_CREDITS_IN_MESSAGE == 0) credit_recv_counter++;
-		if (br_i == MAX_BCAST_BATCH) {
+		br_i++;
+
+
+
+
+		/*if (br_i == MAX_BCAST_BATCH) {
 			post_credit_recvs_and_batch_bcasts_to_NIC(br_i, cb, coh_send_wr, credit_recv_wr, &credit_recv_counter, protocol);
 			br_i = 0;
-		}
+		}*/
 	}
-	post_credit_recvs_and_batch_bcasts_to_NIC(br_i, cb, coh_send_wr, credit_recv_wr, &credit_recv_counter, protocol);
+	//post_credit_recvs_and_batch_bcasts_to_NIC(br_i, cb, coh_send_wr, credit_recv_wr, &credit_recv_counter, protocol);
 }
 
 /* ---------------------------------------------------------------------------

@@ -28,7 +28,10 @@ std::vector<char*> ip_vector; // all machines
 
 erpc::Nexus *nexus;
 
+
+
 extern void req_handler(erpc::ReqHandle *req_handle, void *);
+extern void req_cache(erpc::ReqHandle *req_handle, void *);
 
 
 
@@ -209,8 +212,8 @@ int main(int argc, char *argv[])
 	std::string server_uri = ip + ":" + std::to_string(worker_port) ;
 
 	nexus = new erpc::Nexus(server_uri, 0, 0);
-    nexus->register_req_func(kReqType, req_handler);
-
+    nexus->register_req_func(kReqData, req_handler); // client->worker requests for data
+	nexus->register_req_func(kReqCache, req_cache); // client->client messages for cache updates
 
 
 

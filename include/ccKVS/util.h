@@ -21,10 +21,20 @@
 
 extern uint64_t seed;
 
-#include "../eRPC/erpc_config.h"
+//#include "../eRPC/erpc_config.h"
+#include "rpc.h"
 
 extern std::vector<char*> ip_vector;
 extern erpc::Nexus *nexus;
+
+
+static constexpr uint16_t worker_port = 31850;
+static constexpr uint16_t client_port = 31860;
+
+static constexpr uint8_t kReqData = 2;
+static constexpr uint8_t kReqCache = 3;
+
+static constexpr size_t kMsgSize = 16;
 
 /* ---------------------------------------------------------------------------
 ------------------------------STATS --------------------------------------
@@ -158,7 +168,7 @@ int pin_client(int c_id);
 
 
 
-void send_erpc_request(int rm_id, struct extended_cache_op* ops, size_t req_length, size_t resp_length);
-
+void add_erpc_request(int rm_id, struct extended_cache_op* ops, size_t req_length, size_t resp_length);
+void add_cache_op(struct extended_cache_op* ops, size_t req_length);
 
 #endif /* CCKVS_UTILS_H */

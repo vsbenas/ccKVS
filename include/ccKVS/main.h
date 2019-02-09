@@ -29,8 +29,8 @@ using namespace std;
 #define MAX_SERVER_PORTS 1 // better not change that
 
 
-#define WORKERS_PER_MACHINE 1
-#define CLIENTS_PER_MACHINE 1
+#define WORKERS_PER_MACHINE 2
+#define CLIENTS_PER_MACHINE 2
 #define MACHINE_NUM 3
 
 #define CACHE_SOCKET 0 //(WORKERS_PER_MACHINE < 8 ? 0 : 1 )// socket where the cache is bind

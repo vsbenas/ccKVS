@@ -590,7 +590,7 @@ void setup_client_conenctions_and_spawn_stats_thread(int clt_gid, struct hrd_ctr
         // printf("main: Client %d published dgram %s \n", clt_gid, clt_dgram_qp_name);
     }
     if (local_client_id == 0) {
-        create_AHs(clt_gid, cb);
+        //create_AHs(clt_gid, cb); [REMOVED]
         assert(clt_needed_ah_ready == 0);
         // Spawn a thread that prints the stats
         if (spawn_stats_thread() != 0)
