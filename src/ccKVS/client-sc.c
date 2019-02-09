@@ -1,25 +1,22 @@
 
 #include "util.h"
 
-uint16_t local_client_id;
 
-int sessions[MACHINE_NUM]; // for data transfer
-int cache_sessions[MACHINE_NUM]; // cache coherence transfer
 
-erpc::Rpc<erpc::CTransport> *crpc;
+erpc::Rpc<erpc::CTransport> *crpc[CLIENTS_PER_MACHINE];
 
 // data ops buffers
-erpc::MsgBuffer ereq[MACHINE_NUM];
-erpc::MsgBuffer eresp[MACHINE_NUM];
+erpc::MsgBuffer ereq[CLIENTS_PER_MACHINE][MACHINE_NUM];
+erpc::MsgBuffer eresp[CLIENTS_PER_MACHINE][MACHINE_NUM];
 
-int bufferused[MACHINE_NUM];
+int bufferused[CLIENTS_PER_MACHINE][MACHINE_NUM];
 
 // cache op buffers
 
-erpc::MsgBuffer creq[MACHINE_NUM];
-erpc::MsgBuffer cresp[MACHINE_NUM];
+erpc::MsgBuffer creq[CLIENTS_PER_MACHINE][MACHINE_NUM];
+erpc::MsgBuffer cresp[CLIENTS_PER_MACHINE][MACHINE_NUM];
 
-int cache_bufferused[MACHINE_NUM];
+int cache_bufferused[CLIENTS_PER_MACHINE][MACHINE_NUM];
 
 
 
@@ -28,8 +25,10 @@ int cache_bufferused[MACHINE_NUM];
 
 
 
-void req_cache(erpc::ReqHandle *req_handle, void *) {
+void req_cache(erpc::ReqHandle *req_handle, void *context) {
     //auto &req = req_handle->pre_req_msgbuf;
+
+    uint16_t local_client_id = *(static_cast<uint16_t*>(context));
 
     auto &resp = req_handle->pre_resp_msgbuf;
 
@@ -41,7 +40,7 @@ void req_cache(erpc::ReqHandle *req_handle, void *) {
 
 
 
-    crpc->resize_msg_buffer(&resp, 3);
+    crpc[local_client_id]->resize_msg_buffer(&resp, 3);
 
 
 
@@ -51,7 +50,7 @@ void req_cache(erpc::ReqHandle *req_handle, void *) {
 
     //printf("%s .\n",(char *) resp.buf);
 
-    crpc->enqueue_response(req_handle);
+    crpc[local_client_id]->enqueue_response(req_handle);
 
     c_stats[local_client_id].received_updates_per_client+=updates;
 
@@ -60,11 +59,13 @@ void req_cache(erpc::ReqHandle *req_handle, void *) {
 }
 
 
-void cache_response(void *, size_t tag) {
+void cache_response(void *context, size_t tag) {
 
-    crpc->free_msg_buffer(creq[tag]);
-    crpc->free_msg_buffer(cresp[tag]);
-    cache_bufferused[tag]=0;
+    uint16_t local_client_id = *(static_cast<uint16_t*>(context));
+
+    crpc[local_client_id]->free_msg_buffer(creq[local_client_id][tag]);
+    crpc[local_client_id]->free_msg_buffer(cresp[local_client_id][tag]);
+    cache_bufferused[local_client_id][tag]=0;
 
 }
 
@@ -75,7 +76,7 @@ struct extended_cache_op* cbatch[CACHE_BATCH_SIZE];
 int creq_length;
 
 
-void add_cache_op(struct extended_cache_op* ops, size_t request_length) {
+void add_cache_op(struct extended_cache_op* ops, size_t request_length, uint16_t local_client_id) {
 
     assert(cidx < CACHE_BATCH_SIZE);
 
@@ -89,14 +90,14 @@ void add_cache_op(struct extended_cache_op* ops, size_t request_length) {
 
 
 
-void broadcast_cache_ops() {
+void broadcast_cache_ops(uint16_t clientid, int* cache_sessions) {
 
     //cyan_printf("Broadcasting cache ops!\n");
     for (int rm_id = 0; rm_id < MACHINE_NUM; rm_id++) {
 
         if (rm_id != machine_id) {
 
-            if(cache_bufferused[rm_id] == 1) {
+            if(cache_bufferused[clientid][rm_id] == 1) {
                 printf("Error! Buffer %i in use.\n",rm_id);
                 return;
             }
@@ -111,17 +112,17 @@ void broadcast_cache_ops() {
 
 
 
-            creq[rm_id] = crpc->alloc_msg_buffer_or_die(total_length);
-            cresp[rm_id] = crpc->alloc_msg_buffer_or_die(total_length);
+            creq[clientid][rm_id] = crpc[clientid]->alloc_msg_buffer_or_die(total_length);
+            cresp[clientid][rm_id] = crpc[clientid]->alloc_msg_buffer_or_die(total_length);
 
-            memcpy(creq[rm_id].buf, cbatch, total_length);
-
-
-
-            cache_bufferused[rm_id]=1;
+            memcpy(creq[clientid][rm_id].buf, cbatch, total_length);
 
 
-            crpc->enqueue_request(session, kReqCache, &creq[rm_id], &cresp[rm_id], cache_response, rm_id);
+
+            cache_bufferused[clientid][rm_id]=1;
+
+
+            crpc[clientid]->enqueue_request(session, kReqCache, &creq[clientid][rm_id], &cresp[clientid][rm_id], cache_response, rm_id);
 
         }
 
@@ -133,14 +134,15 @@ void broadcast_cache_ops() {
 
 
 
-void receive_response(void *, size_t tag) {
+void receive_response(void *context, size_t tag) {
     //printf("response!\n");
 
+    uint16_t local_client_id = *(static_cast<uint16_t*>(context));
 
     // cyan_printf("Client %d received: %s (tag %d)\n",local_client_id, eresp[tag].buf, tag);
-    crpc->free_msg_buffer(ereq[tag]);
-    crpc->free_msg_buffer(eresp[tag]);
-    bufferused[tag]=0;
+    crpc[local_client_id]->free_msg_buffer(ereq[local_client_id][tag]);
+    crpc[local_client_id]->free_msg_buffer(eresp[local_client_id][tag]);
+    bufferused[local_client_id][tag]=0;
 
 }
 
@@ -168,7 +170,7 @@ void add_erpc_request(int rm_id, struct extended_cache_op* ops, size_t request_l
 
 }
 
-void send_requests() {
+void send_requests(uint16_t clientid, int *sessions) {
 
     int reqs = 0;
     for(int rm_id=0;rm_id<MACHINE_NUM;rm_id++) {
@@ -179,7 +181,7 @@ void send_requests() {
 
             int session = sessions[rm_id];
             // fill ereq
-            if(bufferused[rm_id] == 1) {
+            if(bufferused[clientid][rm_id] == 1) {
                 printf("Error! Buffer %i in use.\n",rm_id);
                 return;
             }
@@ -193,8 +195,8 @@ void send_requests() {
             }
             assert(total_length < 1000); // for some reason ibv_post_send throws EINVAL
 
-            ereq[rm_id] = crpc->alloc_msg_buffer_or_die(total_length);
-            eresp[rm_id] = crpc->alloc_msg_buffer_or_die(total_length);
+            ereq[clientid][rm_id] = crpc[clientid]->alloc_msg_buffer_or_die(total_length);
+            eresp[clientid][rm_id] = crpc[clientid]->alloc_msg_buffer_or_die(total_length);
 
             int offset = 0;
 
@@ -202,18 +204,18 @@ void send_requests() {
 
             for(int msg = 0; msg < idx[rm_id]; msg++) {
 
-                memcpy(ereq[rm_id].buf + offset , batch[rm_id][msg], req_length[rm_id][msg]);
+                memcpy(ereq[clientid][rm_id].buf + offset , batch[rm_id][msg], req_length[rm_id][msg]);
 
                 offset += req_length[rm_id][msg];
                 //mica_print_op((struct mica_op *) batch[rm_id][msg]);
                 //printf("(%i,%i,%s (%i)),",batch[rm_id][msg]->opcode,batch[rm_id][msg]->val_len,batch[rm_id][msg]->value,req_length[rm_id][msg]);
             }
 
-            bufferused[rm_id]=1;
+            bufferused[clientid][rm_id]=1;
 
             idx[rm_id]=0;
 
-            crpc->enqueue_request(session, kReqData, &ereq[rm_id], &eresp[rm_id], receive_response, rm_id);
+            crpc[clientid]->enqueue_request(session, kReqData, &ereq[clientid][rm_id], &eresp[clientid][rm_id], receive_response, rm_id);
             reqs++;
         }
     }
@@ -235,12 +237,15 @@ void *run_client(void *arg)
     int i, j;
     struct thread_params params = *(struct thread_params *) arg;
     int clt_gid = (machine_id * CLIENTS_PER_MACHINE) + params.id;	/* Global ID of this client thread */
-    local_client_id = (uint16_t) (clt_gid % CLIENTS_PER_MACHINE);
+    uint16_t local_client_id = (uint16_t) (clt_gid % CLIENTS_PER_MACHINE);
     uint16_t worker_qp_i = (uint16_t) ((local_client_id + machine_id) % WORKER_NUM_UD_QPS);
     uint16_t local_worker_id = (uint16_t) ((clt_gid % LOCAL_WORKERS) + ACTIVE_WORKERS_PER_MACHINE); // relevant only if local workers are enabled
     //if (local_client_id == 0 && machine_id == 0)
 
 
+
+    int sessions[MACHINE_NUM]; // for data transfer
+    int cache_sessions[MACHINE_NUM]; // cache coherence transfer
 
 
     int protocol = SEQUENTIAL_CONSISTENCY;
@@ -345,9 +350,13 @@ void *run_client(void *arg)
     --------------CONNECT WITH WORKERS AND CLIENTS-----------------------
     --------------------------------------------------------- */
 
+    void *localid = malloc(sizeof(uint16_t));
+    memcpy(localid, (void *) &local_client_id, sizeof(uint16_t));
+
+
     printf("Creating rpc for client %d using rpcid %d\n", local_client_id, WORKERS_PER_MACHINE + local_client_id);
-    crpc = new erpc::Rpc<erpc::CTransport>(nexus, nullptr, WORKERS_PER_MACHINE + local_client_id, sm_handler);
-    crpc->retry_connect_on_invalid_rpc_id = true;
+    crpc[local_client_id] = new erpc::Rpc<erpc::CTransport>(nexus, localid, WORKERS_PER_MACHINE + local_client_id, sm_handler);
+    crpc[local_client_id]->retry_connect_on_invalid_rpc_id = true;
     printf("Connecting to remote machines...\n");
 
     assert(ip_vector.size() >= MACHINE_NUM);
@@ -363,15 +372,15 @@ void *run_client(void *arg)
 
 
             std::string server_uri = remote_ip + ":" + std::to_string(worker_port);
-            int session_num = crpc->create_session(server_uri, local_client_id);
+            int session_num = crpc[local_client_id]->create_session(server_uri, local_client_id);
 
             sessions[i] = session_num;
 
             cyan_printf("Trying to connect...");
-            while (!crpc->is_connected(session_num)) crpc->run_event_loop_once();
+            while (!crpc[local_client_id]->is_connected(session_num)) crpc[local_client_id]->run_event_loop_once();
             cyan_printf("Connected data transfer! Session id: %d\n",session_num);
 
-            bufferused[i] = 0;
+            bufferused[local_client_id][i] = 0;
 
             printf("Client %d connecting to client %d at machine (%s:%i)\n", local_client_id, local_client_id,
                    ip_vector[i], worker_port);
@@ -379,15 +388,15 @@ void *run_client(void *arg)
 
             server_uri = remote_ip + ":" + std::to_string(worker_port);
 
-            session_num = crpc->create_session(server_uri, WORKERS_PER_MACHINE + local_client_id);
+            session_num = crpc[local_client_id]->create_session(server_uri, WORKERS_PER_MACHINE + local_client_id);
 
             cache_sessions[i] = session_num;
 
             cyan_printf("Trying to connect...");
-            while (!crpc->is_connected(session_num)) crpc->run_event_loop_once();
+            while (!crpc[local_client_id]->is_connected(session_num)) crpc[local_client_id]->run_event_loop_once();
             cyan_printf("Connected cache transfer! Session id: %d\n",session_num);
 
-            cache_bufferused[i] = 0;
+            cache_bufferused[local_client_id][i] = 0;
 
 
         }
@@ -412,14 +421,14 @@ void *run_client(void *arg)
     ---------------------------------------------------------------------------*/
     while (1) {
 
-        crpc->run_event_loop_once();
-
+        crpc[local_client_id]->run_event_loop_once();
+        //continue;
         int _continue = 0;
         for(int rm_id = 0; rm_id < MACHINE_NUM; rm_id ++) {
-            if(bufferused[rm_id] == 1) {
+            if(bufferused[local_client_id][rm_id] == 1) {
                 _continue=1;
             }
-            if(cache_bufferused[rm_id] == 1) {
+            if(cache_bufferused[local_client_id][rm_id] == 1) {
                 _continue=1;
             }
         }
@@ -501,8 +510,8 @@ void *run_client(void *arg)
             c_stats[local_client_id].wasted_loops++;
         }
 
-        broadcast_cache_ops(); // cache ops
-        send_requests(); // data ops
+        broadcast_cache_ops(local_client_id,cache_sessions); // cache ops
+        send_requests(local_client_id,sessions); // data ops
 
     }
     return NULL;

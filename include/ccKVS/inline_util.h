@@ -1095,7 +1095,7 @@ static inline void perform_broadcasts_SC(struct extended_cache_op *ops, uint8_t 
 
 		//batch_cache_op(ops + op_i, HERD_PUT_REQ_SIZE);
 
-		add_cache_op(ops + op_i, HERD_PUT_REQ_SIZE);
+		add_cache_op(ops + op_i, HERD_PUT_REQ_SIZE,local_client_id);
 
 
 		memcpy(coh_buf + (*coh_buf_i), ops + op_i, HERD_PUT_REQ_SIZE);

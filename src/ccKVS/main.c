@@ -30,8 +30,8 @@ erpc::Nexus *nexus;
 
 
 
-extern void req_handler(erpc::ReqHandle *req_handle, void *);
-extern void req_cache(erpc::ReqHandle *req_handle, void *);
+extern void req_handler(erpc::ReqHandle *req_handle, void *context);
+extern void req_cache(erpc::ReqHandle *req_handle, void *context);
 
 
 
@@ -236,14 +236,14 @@ int main(int argc, char *argv[])
 //			occupied_cores[c_core] = 1;
 		}
 		if ( i < WORKERS_PER_MACHINE) { // spawn workers
-			int w_core = pin_worker(i);
-			green_printf("Creating worker thread %d at core %d \n", param_arr[i].id, w_core);
-			CPU_ZERO(&cpus_w);
-			CPU_SET(w_core, &cpus_w);
+			//int w_core = pin_worker(i);
+			green_printf("Creating worker thread %d at core X\n", param_arr[i].id);
+			//CPU_ZERO(&cpus_w);
+			//CPU_SET(w_core, &cpus_w);
 
-			pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpus_w);
+			//pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpus_w);
 			pthread_create(&thread_arr[i + CLIENTS_PER_MACHINE], NULL, run_worker, &param_arr[i]);// change NULL here to &attr to get the thread affinity
-			occupied_cores[w_core] = 1;
+			//occupied_cores[w_core] = 1;
 		}
 	}
 	

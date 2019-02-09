@@ -1,14 +1,16 @@
 #include "util.h"
 #include "inline_util.h"
 
-uint16_t wrkr_lid;
-erpc::Rpc<erpc::CTransport> *rpc;
 
-int reqs_per_loop = 0;
+erpc::Rpc<erpc::CTransport> *rpc[WORKERS_PER_MACHINE];
+
+int reqs_per_loop[WORKERS_PER_MACHINE];
 
 
-void req_handler(erpc::ReqHandle *req_handle, void *) {
+void req_handler(erpc::ReqHandle *req_handle, void *worker) {
     //auto &req = req_handle->pre_req_msgbuf;
+
+    int workerid = *(static_cast<int*>(worker));
 
 	auto &resp = req_handle->pre_resp_msgbuf;
 
@@ -21,9 +23,6 @@ void req_handler(erpc::ReqHandle *req_handle, void *) {
 
     //struct mica_op **ops = malloc
 
-
-
-    rpc->resize_msg_buffer(&resp, size);
 
 
     struct mica_resp mica_resp_arr[WORKER_MAX_BATCH];
@@ -50,17 +49,17 @@ void req_handler(erpc::ReqHandle *req_handle, void *) {
 
     KVS_BATCH_OP(&kv, wr_i, op_ptr_arr, mica_resp_arr);
 
-    rpc->resize_msg_buffer(&resp, size);
+    rpc[workerid]->resize_msg_buffer(&resp, size);
 
 
     memcpy((void *) resp.buf, (void *) req->buf, size);
 
-	w_stats[wrkr_lid].batches_per_worker++;
-	w_stats[wrkr_lid].remotes_per_worker += wr_i;
+	w_stats[workerid].batches_per_worker++;
+	w_stats[workerid].remotes_per_worker += wr_i;
 
     req_handle->prealloc_used = true;
-	rpc->enqueue_response(req_handle);
-    reqs_per_loop++;
+	rpc[workerid]->enqueue_response(req_handle);
+    reqs_per_loop[workerid]++;
 }
 
 int connections = 0;
@@ -84,7 +83,7 @@ void *run_worker(void *arg) {
 	int i, j, ret;
 	uint16_t qp_i;
 	struct thread_params params = *(struct thread_params *) arg;
-	wrkr_lid = params.id;    /* Local ID of this worker thread*/
+    uint16_t wrkr_lid = params.id;    /* Local ID of this worker thread*/
 	int num_server_ports = MAX_SERVER_PORTS, base_port_index = 0;
 
 
@@ -94,8 +93,11 @@ void *run_worker(void *arg) {
 
 	cyan_printf("Setting up eRPC server for worker ID %d\n",wrkr_lid);
 
+	void *wrkrid = malloc(sizeof(int));
+	memcpy(wrkrid, (void *) &wrkr_lid, sizeof(int));
 
-	rpc = new erpc::Rpc<erpc::CTransport>(nexus, nullptr, wrkr_lid, sm_handlerc);
+
+	rpc[wrkr_lid] = new erpc::Rpc<erpc::CTransport>(nexus, wrkrid, wrkr_lid, sm_handlerc);
 
 	uint8_t worker_sl = 0;
 	int remote_client_num = CLIENT_NUM - CLIENTS_PER_MACHINE;
@@ -145,12 +147,16 @@ void *run_worker(void *arg) {
 
 	if (wrkr_lid == 0) {
 		//create_AHs_for_worker(wrkr_lid, cb[0]);
+		printf("checking ah = 0 for worker %i\n",wrkr_lid);
 		assert(wrkr_needed_ah_ready == 0);
 		wrkr_needed_ah_ready = 1;
-	} else
-		while (wrkr_needed_ah_ready == 0) usleep(200000);
+	} else {
+        printf("sleep worker %i\n",wrkr_lid);
+	    while (wrkr_needed_ah_ready == 0) usleep(200000);
+
+    }
 	assert(wrkr_needed_ah_ready == 1);
-	//printf("WORKER %d has all the needed ahs\n", wrkr_lid );
+	printf("WORKER %d has all the needed ahs\n", wrkr_lid );
 
 	struct mica_op *op_ptr_arr[WORKER_MAX_BATCH];//, *local_op_ptr_arr;
 	struct mica_resp mica_resp_arr[WORKER_MAX_BATCH], local_responses[CLIENTS_PER_MACHINE *
@@ -188,12 +194,12 @@ void *run_worker(void *arg) {
 	//rpc->run_event_loop(-1);
 	while (1) {
 		/* Do a pass over requests from all clients */
-        reqs_per_loop = 0;
+        reqs_per_loop[wrkr_lid] = 0;
 
-		//rpc->run_event_loop_once();
-        rpc->run_event_loop(100);
+        rpc[wrkr_lid]->run_event_loop_once();
 
-        if (reqs_per_loop == 0) {
+
+        if (reqs_per_loop[wrkr_lid] == 0) {
             w_stats[wrkr_lid].empty_polls_per_worker++;
             continue; // no request was found, start over
         }
@@ -217,6 +223,6 @@ void *run_worker(void *arg) {
 		}
 
 	}
-	delete rpc;
+	delete rpc[wrkr_lid];
 	return NULL;
 }
