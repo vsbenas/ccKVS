@@ -1,2 +1,0 @@
-g++ -g -std=c++11 -o server server.cc -I ../eRPC -L ../eRPC -lerpc -lpthread -lnuma -ldl -libverbs -DINFINIBAND=true
-Makefile:12: recipe for target 'infiniband' failed

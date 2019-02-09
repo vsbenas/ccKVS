@@ -38,7 +38,11 @@ void req_cache(erpc::ReqHandle *req_handle, void *context) {
     int updates = size / HERD_PUT_REQ_SIZE;
     //printf("Received cache ops %i %s!\n",size, (char *) req->buf);
 
+    struct cache_op *update_ops = reinterpret_cast<struct cache_op*>(req->buf);
 
+    struct mica_resp update_resp[BCAST_TO_CACHE_BATCH];
+
+    cache_batch_op_sc_with_cache_op(updates, local_client_id, &update_ops, update_resp);
 
     crpc[local_client_id]->resize_msg_buffer(&resp, 3);
 

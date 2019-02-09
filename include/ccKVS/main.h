@@ -31,7 +31,7 @@ using namespace std;
 
 #define WORKERS_PER_MACHINE 2
 #define CLIENTS_PER_MACHINE 2
-#define MACHINE_NUM 3
+#define MACHINE_NUM 2
 
 #define CACHE_SOCKET 0 //(WORKERS_PER_MACHINE < 8 ? 0 : 1 )// socket where the cache is bind
 
