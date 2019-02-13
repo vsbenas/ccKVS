@@ -30,7 +30,7 @@ void req_cache(erpc::ReqHandle *req_handle, void *context) {
 
     uint16_t local_client_id = *(static_cast<uint16_t*>(context));
 
-    auto &resp = req_handle->pre_resp_msgbuf;
+    erpc::MsgBuffer &resp = req_handle->pre_resp_msgbuf;
 
     const erpc::MsgBuffer *req = req_handle->get_req_msgbuf();
     size_t size = req->get_data_size();
@@ -50,11 +50,11 @@ void req_cache(erpc::ReqHandle *req_handle, void *context) {
 
     memcpy((void *) resp.buf, (void *) "OK\0", 3);
 
-    req_handle->prealloc_used = true;
+    //req_handle->prealloc_used = true;
 
     //printf("%s .\n",(char *) resp.buf);
 
-    crpc[local_client_id]->enqueue_response(req_handle);
+    crpc[local_client_id]->enqueue_response(req_handle,&resp);
 
     c_stats[local_client_id].received_updates_per_client+=updates;
 
@@ -63,13 +63,19 @@ void req_cache(erpc::ReqHandle *req_handle, void *context) {
 }
 
 
-void cache_response(void *context, size_t tag) {
+void cache_response(void *context, void* tag) {
 
     uint16_t local_client_id = *(static_cast<uint16_t*>(context));
 
-    crpc[local_client_id]->free_msg_buffer(creq[local_client_id][tag]);
-    crpc[local_client_id]->free_msg_buffer(cresp[local_client_id][tag]);
-    cache_bufferused[local_client_id][tag]=0;
+    int rm_id = *(static_cast<int*>(tag));
+
+    crpc[local_client_id]->free_msg_buffer(creq[local_client_id][rm_id]);
+    crpc[local_client_id]->free_msg_buffer(cresp[local_client_id][rm_id]);
+    cache_bufferused[local_client_id][rm_id]=0;
+
+
+
+    free(tag);
 
 }
 
@@ -125,8 +131,10 @@ void broadcast_cache_ops(uint16_t clientid, int* cache_sessions) {
 
             cache_bufferused[clientid][rm_id]=1;
 
+            void *rmid_tag = malloc(sizeof(int));
+            memcpy(rmid_tag, (void *) &rm_id, sizeof(int));
 
-            crpc[clientid]->enqueue_request(session, kReqCache, &creq[clientid][rm_id], &cresp[clientid][rm_id], cache_response, rm_id);
+            crpc[clientid]->enqueue_request(session, kReqCache, &creq[clientid][rm_id], &cresp[clientid][rm_id], cache_response, rmid_tag);
 
         }
 
@@ -138,15 +146,21 @@ void broadcast_cache_ops(uint16_t clientid, int* cache_sessions) {
 
 
 
-void receive_response(void *context, size_t tag) {
+void receive_response(void *context, void *tag) {
     //printf("response!\n");
 
     uint16_t local_client_id = *(static_cast<uint16_t*>(context));
 
+    int rm_id = *(static_cast<int*>(tag));
+
     // cyan_printf("Client %d received: %s (tag %d)\n",local_client_id, eresp[tag].buf, tag);
-    crpc[local_client_id]->free_msg_buffer(ereq[local_client_id][tag]);
-    crpc[local_client_id]->free_msg_buffer(eresp[local_client_id][tag]);
-    bufferused[local_client_id][tag]=0;
+    crpc[local_client_id]->free_msg_buffer(ereq[local_client_id][rm_id]);
+    crpc[local_client_id]->free_msg_buffer(eresp[local_client_id][rm_id]);
+    bufferused[local_client_id][rm_id]=0;
+
+
+
+    free(tag);
 
 }
 
@@ -219,7 +233,10 @@ void send_requests(uint16_t clientid, int *sessions) {
 
             idx[rm_id]=0;
 
-            crpc[clientid]->enqueue_request(session, kReqData, &ereq[clientid][rm_id], &eresp[clientid][rm_id], receive_response, rm_id);
+            void *rmid_tag = malloc(sizeof(int));
+            memcpy(rmid_tag, (void *) &rm_id, sizeof(int));
+
+            crpc[clientid]->enqueue_request(session, kReqData, &ereq[clientid][rm_id], &eresp[clientid][rm_id], receive_response, rmid_tag);
             reqs++;
         }
     }

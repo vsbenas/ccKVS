@@ -12,7 +12,7 @@ void req_handler(erpc::ReqHandle *req_handle, void *worker) {
 
     int workerid = *(static_cast<int*>(worker));
 
-	auto &resp = req_handle->pre_resp_msgbuf;
+	erpc::MsgBuffer &resp = req_handle->pre_resp_msgbuf;
 
     const erpc::MsgBuffer *req = req_handle->get_req_msgbuf();
     size_t size = req->get_data_size();
@@ -57,8 +57,8 @@ void req_handler(erpc::ReqHandle *req_handle, void *worker) {
 	w_stats[workerid].batches_per_worker++;
 	w_stats[workerid].remotes_per_worker += wr_i;
 
-    req_handle->prealloc_used = true;
-	rpc[workerid]->enqueue_response(req_handle);
+    //req_handle->prealloc_used = true;
+	rpc[workerid]->enqueue_response(req_handle,&resp);
     reqs_per_loop[workerid]++;
 }
 
