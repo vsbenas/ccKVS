@@ -168,7 +168,7 @@ int pin_client(int c_id);
 
 
 
-void add_erpc_request(int rm_id, struct extended_cache_op* ops, size_t req_length, size_t resp_length);
+void add_erpc_request(int rm_id, struct extended_cache_op* ops, size_t req_length, size_t resp_length,uint16_t local_client_id);
 void add_cache_op(struct extended_cache_op* ops, size_t req_length,uint16_t local_client_id);
 
 #endif /* CCKVS_UTILS_H */

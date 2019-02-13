@@ -93,7 +93,7 @@ void add_cache_op(struct extended_cache_op* ops, size_t request_length, uint16_t
     creq_length[local_client_id] = request_length;
 
 
-    cbatch[local_client_id][cidx]=ops;
+    cbatch[local_client_id][cidx[local_client_id]]=ops;
     cidx[local_client_id]++;
     c_stats[local_client_id].updates_per_client++;
 }
@@ -112,7 +112,7 @@ void broadcast_cache_ops(uint16_t clientid, int* cache_sessions) {
                 return;
             }
 
-            if(cidx[local_client_id] == 0)
+            if(cidx[clientid] == 0)
                 continue;
 
             int session = cache_sessions[rm_id];
