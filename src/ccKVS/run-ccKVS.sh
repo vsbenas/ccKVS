@@ -10,7 +10,7 @@ export MLX5_SCATTER_TO_CQE=1
 printenv | grep "MEM"
 # Setting up a unique machine id via a list of all ip addresses
 machine_id=-1
-IPs=(192.168.122.14 192.168.122.103 192.168.122.28) # (129.215.165.5 129.215.165.6)
+IPs=(129.215.165.5 129.215.165.6) #(192.168.122.14 192.168.122.103 192.168.122.28) # (129.215.165.5 129.215.165.6)
 localIP=$(ip addr | grep 'state UP' -A2 | sed -n 3p | awk '{print $2}' | cut -f1  -d'/')
 export allIPs=""
 for i in "${!IPs[@]}"; do
