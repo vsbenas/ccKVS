@@ -8,7 +8,7 @@ namespace erpc {
 
 /// Packet credits. This must be a power of two for fast matching of packet
 /// numbers to their position in the TX timestamp array.
-static constexpr size_t kSessionCredits = 8;
+static constexpr size_t kSessionCredits = 32;
 static_assert(is_power_of_two(kSessionCredits), "");
 
 /// Request window size. This must be a power of two for fast multiplication and
@@ -32,6 +32,8 @@ enum class SessionState {
 
 /// Packet types used for session management
 enum class SmPktType : int {
+  kPingReq,         ///< Ping request
+  kPingResp,        ///< Ping response
   kConnectReq,      ///< Session connect request
   kConnectResp,     ///< Session connect response
   kDisconnectReq,   ///< Session disconnect request
@@ -71,6 +73,8 @@ static std::string session_state_str(SessionState state) {
 
 static std::string sm_pkt_type_str(SmPktType sm_pkt_type) {
   switch (sm_pkt_type) {
+    case SmPktType::kPingReq: return "[Ping request]";
+    case SmPktType::kPingResp: return "[Ping response]";
     case SmPktType::kConnectReq: return "[Connect request]";
     case SmPktType::kConnectResp: return "[Connect response]";
     case SmPktType::kDisconnectReq: return "[Disconnect request]";
@@ -83,6 +87,8 @@ static std::string sm_pkt_type_str(SmPktType sm_pkt_type) {
 /// Check if a session management packet type is valid
 static bool sm_pkt_type_is_valid(SmPktType sm_pkt_type) {
   switch (sm_pkt_type) {
+    case SmPktType::kPingReq:
+    case SmPktType::kPingResp:
     case SmPktType::kConnectReq:
     case SmPktType::kConnectResp:
     case SmPktType::kDisconnectReq:
@@ -96,8 +102,10 @@ static bool sm_pkt_type_is_valid(SmPktType sm_pkt_type) {
 static bool sm_pkt_type_is_req(SmPktType sm_pkt_type) {
   assert(sm_pkt_type_is_valid(sm_pkt_type));
   switch (sm_pkt_type) {
+    case SmPktType::kPingReq:
     case SmPktType::kConnectReq:
     case SmPktType::kDisconnectReq: return true;
+    case SmPktType::kPingResp:
     case SmPktType::kConnectResp:
     case SmPktType::kDisconnectResp: return false;
   }
@@ -109,8 +117,10 @@ static bool sm_pkt_type_is_req(SmPktType sm_pkt_type) {
 static SmPktType sm_pkt_type_req_to_resp(SmPktType sm_pkt_type) {
   assert(sm_pkt_type_is_req(sm_pkt_type));
   switch (sm_pkt_type) {
+    case SmPktType::kPingReq: return SmPktType::kPingResp;
     case SmPktType::kConnectReq: return SmPktType::kConnectResp;
     case SmPktType::kDisconnectReq: return SmPktType::kDisconnectResp;
+    case SmPktType::kPingResp:
     case SmPktType::kConnectResp:
     case SmPktType::kDisconnectResp: break;
   }
@@ -170,10 +180,15 @@ class SessionEndpoint {
 
   SessionEndpoint() {
     memset(static_cast<void *>(hostname), 0, sizeof(hostname));
-    sm_udp_port = kInvalidSmUdpPort;
+    sm_udp_port = 0;  // UDP port 0 is naturally invalid
     rpc_id = kInvalidRpcId;
     session_num = kInvalidSessionNum;
     memset(static_cast<void *>(&routing_info), 0, sizeof(routing_info));
+  }
+
+  /// Return this endpoint's URI
+  std::string uri() const {
+    return std::string(hostname) + ":" + std::to_string(sm_udp_port);
   }
 
   /// Return a string with a name for this session endpoint, containing
@@ -235,6 +250,13 @@ class SmPkt {
         client(client),
         server(server) {}
 
+  // The response to a ping is the same packet but with packet type switched
+  static SmPkt make_ping_resp(const SmPkt &ping_req) {
+    SmPkt ping_resp = ping_req;
+    ping_resp.pkt_type = SmPktType::kPingResp;
+    return ping_resp;
+  }
+
   bool is_req() const { return sm_pkt_type_is_req(pkt_type); }
   bool is_resp() const { return !is_req(); }
 };
@@ -245,4 +267,29 @@ static SmPkt sm_construct_resp(const SmPkt &req_sm_pkt, SmErrType err_type) {
   resp_sm_pkt.err_type = err_type;
   return resp_sm_pkt;
 }
+
+/// A work item exchanged between an Rpc thread and an SM thread. This does
+/// not have any Nexus-related members, so it's outside the Nexus class.
+class SmWorkItem {
+  enum class Reset { kFalse, kTrue };
+
+ public:
+  SmWorkItem(uint8_t rpc_id, SmPkt sm_pkt)
+      : reset(Reset::kFalse), rpc_id(rpc_id), sm_pkt(sm_pkt) {}
+
+  SmWorkItem(std::string reset_rem_hostname)
+      : reset(Reset::kTrue),
+        rpc_id(kInvalidRpcId),
+        reset_rem_hostname(reset_rem_hostname) {}
+
+  bool is_reset() const { return reset == Reset::kTrue; }
+
+  const Reset reset;     ///< Is this work item a reset?
+  const uint8_t rpc_id;  ///< The local Rpc ID, invalid for reset work items
+
+  SmPkt sm_pkt;  ///< The session management packet, for non-reset work items
+
+  /// The remote hostname to reset, valid for reset work items
+  std::string reset_rem_hostname;
+};
 }  // namespace erpc

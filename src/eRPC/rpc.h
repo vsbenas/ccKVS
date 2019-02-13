@@ -1,3 +1,5 @@
+#pragma once
+
 #include <set>
 #include "cc/timing_wheel.h"
 #include "common.h"
@@ -23,10 +25,11 @@ namespace erpc {
 /**
  * \mainpage
  *
- * eRPC is a high-performance remote procedure call system for datacenters.
- * The <a href="https://github.com/efficient/eRPC">source code</a> is maintained
- * on GitHub. A <a href="https://arxiv.org/pdf/1806.00680.pdf">preprint</a>
- * describing the system is available.
+ * eRPC is a fast remote procedure call library designed for datacenter
+ * networks. The <a href="https://github.com/efficient/eRPC">source code</a> is
+ * maintained on GitHub. Our USENIX NSDI
+ * <a href="http://www.cs.cmu.edu/~akalia/doc/nsdi19/erpc_nsdi19.pdf">paper</a>
+ * describes eRPC's design in detail.
  *
  * See the API documentation tab for details on how to use eRPC. Using eRPC
  * requires the following steps:
@@ -61,18 +64,13 @@ namespace erpc {
  *
  * @tparam TTr The unreliable transport
  */
-
-
-
 template <class TTr>
-
-
 class Rpc {
   friend class RpcTest;
 
  private:
   /// Initial capacity of the hugepage allocator
-  static constexpr size_t kInitialHugeAllocSize = (8 * MB(1));
+  static constexpr size_t kInitialHugeAllocSize = MB(8);
 
   /// Timeout for a session management request in milliseconds
   static constexpr size_t kSMTimeoutMs = kTesting ? 10 : 100;
@@ -216,11 +214,11 @@ class Rpc {
    * @param req_type The type of the request. The server for this remote
    * procedure call must have a registered handler for this request type.
    *
-   * @param req_msgbuf The MsgBuffer containing the request data,
+   * @param req_msgbuf The MsgBuffer containing the request data
    *
    * @param resp_msgbuf The MsgBuffer that will contain the response data when
-   * the continuation is invoked. This must be large enough to accomodate any
-   * response for this request.
+   * the continuation is invoked. Its allocation size be large enough to
+   * accomodate any response for this request.
    *
    * @param cont_func The continuation that will be invoked when this request
    * completes. See erpc_req_func_t.
@@ -235,7 +233,7 @@ class Rpc {
    */
   void enqueue_request(int session_num, uint8_t req_type, MsgBuffer *req_msgbuf,
                        MsgBuffer *resp_msgbuf, erpc_cont_func_t cont_func,
-                       size_t tag, size_t cont_etid = kInvalidBgETid);
+                       void *tag, size_t cont_etid = kInvalidBgETid);
 
   /**
    * @brief Enqueue a response for transmission at the server. See ReqHandle
@@ -245,8 +243,19 @@ class Rpc {
    * This can be called outside the request handler.
    *
    * @param req_handle The handle passed to the request handler by eRPC
+   *
+   * @param resp_msgbuf The message buffer containing the response. This must
+   * be either the request handle's preallocated response buffer or its
+   * dynamic response. The preallocated response buffer may be used for only
+   * responses that fit in one packet, in which case it is the better choice.
+   *
+   * @note The restriction on resp_msgbuf is inconvenient to the user because
+   * they cannot provide an arbitrary application-owned buffer. Unfortunately,
+   * supporting this feature will require passing the response MsgBuffer by
+   * value instead of reference since eRPC provides no application callback for
+   * when the response can be re-used or freed.
    */
-  void enqueue_response(ReqHandle *req_handle);
+  void enqueue_response(ReqHandle *req_handle, MsgBuffer *resp_msgbuf);
 
   /// Run the event loop for some milliseconds
   inline void run_event_loop(size_t timeout_ms) {
@@ -366,7 +375,9 @@ class Rpc {
   }
 
   /// Reset all datapath stats to zero
-  void reset_dpath_stats() { memset(&dpath_stats, 0, sizeof(dpath_stats)); }
+  void reset_dpath_stats() {
+    memset(reinterpret_cast<void *>(&dpath_stats), 0, sizeof(dpath_stats));
+  }
 
   /**
    * @brief Inject a fault that always fails all routing info resolution
@@ -436,16 +447,13 @@ class Rpc {
    *
    * This does not fully validate the MsgBuffer, since we don't want to
    * conditionally bury only initialized MsgBuffers.
-   *
-   * The server's response MsgBuffers are always backed by dynamic memory, since
-   * even prealloc response MsgBuffers are non-fake: the \p prealloc_used field
-   * is used to decide if we need to free memory.
    */
   inline void bury_resp_msgbuf_server_st(SSlot *sslot) {
     assert(in_dispatch());
 
-    // Free the response MsgBuffer iff it is not preallocated
-    if (unlikely(!sslot->prealloc_used)) {
+    // Free the response MsgBuffer iff it's the dynamically allocated response.
+    // This high-specificity checks prevents freeing a null tx_msgbuf.
+    if (sslot->tx_msgbuf == &sslot->dyn_resp_msgbuf) {
       MsgBuffer *tx_msgbuf = sslot->tx_msgbuf;
       free_msg_buffer(*tx_msgbuf);
       // Need not nullify tx_msgbuf->buffer.buf: we'll just nullify tx_msgbuf
@@ -551,6 +559,8 @@ class Rpc {
     if (!kCcPacing) return true;
     if (kTesting) return faults.hard_wheel_bypass;
     if (kCcOptWheelBypass) {
+      // To prevent reordering, do not bypass the wheel if it contains packets
+      // for this session.
       return sslot->client_info.wheel_count == 0 &&
              sslot->session->is_uncongested();
     }
@@ -784,8 +794,7 @@ class Rpc {
    *
    * @param bg_etid eRPC thread ID of the background thread to submit to
    */
-  void submit_bg_resp_st(erpc_cont_func_t cont_func, size_t tag,
-                         size_t bg_etid);
+  void submit_bg_resp_st(erpc_cont_func_t cont_func, void *tag, size_t bg_etid);
 
   //
   // Queue handlers
@@ -902,9 +911,9 @@ class Rpc {
   const sm_handler_t sm_handler;
   const uint8_t phy_port;  ///< Zero-based physical port specified by app
   const size_t numa_node;
-  const size_t creation_tsc;  ///< Timestamp of creation of this Rpc endpoint
 
   // Derived
+  const size_t creation_tsc;    ///< Timestamp of creation of this Rpc endpoint
   const bool multi_threaded;    ///< True iff there are background threads
   const double freq_ghz;        ///< RDTSC frequency, derived from Nexus
   const size_t rpc_rto_cycles;  ///< RPC RTO in cycles
@@ -952,8 +961,10 @@ class Rpc {
   /// The doubly-linked list of active RPCs. An RPC slot is added to this list
   /// when the request is enqueued. The slot is deleted from this list when its
   /// continuation is invoked or queued to a background thread.
-  /// Having permanent root and tail sentinels allows adding and deleting slots
-  /// from the list without conditional statements.
+  ///
+  /// This should not be a vector because we need random deletes. Having
+  /// permanent root and tail sentinels allows adding and deleting slots from
+  /// the list without conditionals.
   SSlot active_rpcs_root_sentinel, active_rpcs_tail_sentinel;
 
   // Allocator
@@ -973,7 +984,7 @@ class Rpc {
   /// Queues for datapath API requests from background threads
   struct {
     MtQueue<enq_req_args_t> _enqueue_request;
-    MtQueue<ReqHandle *> _enqueue_response;
+    MtQueue<enq_resp_args_t> _enqueue_response;
   } bg_queues;
 
   // Misc

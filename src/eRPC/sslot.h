@@ -25,9 +25,12 @@ class SSlot {
   ~SSlot() {}
 
   // Server-only members. Exposed to req handlers, so not kept in server struct.
-  MsgBuffer dyn_resp_msgbuf;  ///< Dynamic buffer to store RPC response
-  MsgBuffer pre_resp_msgbuf;  ///< Preallocated buffer to store RPC response
-  bool prealloc_used;         ///< Did the handler use \p pre_resp_msgbuf?
+
+  /// A preallocated msgbuf for single-packet responses
+  MsgBuffer pre_resp_msgbuf;
+
+  /// A non-preallocated msgbuf for possibly multi-packet responses
+  MsgBuffer dyn_resp_msgbuf;
 
  private:
   // Members that are valid for both server and client
@@ -50,7 +53,7 @@ class SSlot {
     struct {
       MsgBuffer *resp_msgbuf;      ///< User-supplied response buffer
       erpc_cont_func_t cont_func;  ///< Continuation function for the request
-      size_t tag;                  ///< Tag of the request
+      void *tag;                   ///< Tag of the request
 
       /// Number of packets sent. Packets up to (num_tx - 1) have been sent.
       size_t num_tx;
@@ -58,8 +61,11 @@ class SSlot {
       /// Number of pkts received. Pkts up to (num_tx - 1) have been received.
       size_t num_rx;
 
-      size_t progress_tsc;  ///< Last TSC at which this request made progress
-      size_t cont_etid;     ///< eRPC thread ID to run the continuation on
+      /// TSC at which we last sent or retransmitted a packet, or received an
+      /// in-order packet for this request
+      size_t progress_tsc;
+
+      size_t cont_etid;  ///< eRPC thread ID to run the continuation on
 
       /// Pointers for the intrusive doubly-linked list of active RPCs
       SSlot *prev, *next;

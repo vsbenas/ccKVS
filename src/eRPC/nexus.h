@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <unordered_map>
 #include "common.h"
+#include "heartbeat_mgr.h"
 #include "session.h"
 #include "sm_types.h"
 #include "util/logger.h"
@@ -25,6 +26,8 @@ class Nexus {
    * @brief Initialize eRPC for this process
    *
    * @param local_uri A URI for this process formatted as hostname:udp_port.
+   * This UDP port is used for listening to management packets, and it must
+   * be in [#kBaseSmUdpPort, #kBaseSmUdpPort + #kMaxNumERpcProcesses).
    *
    * @param numa_node The NUMA node used by eRPC for this process. Only one eRPC
    * process may run per NUMA node.
@@ -66,7 +69,7 @@ class Nexus {
 
     static inline BgWorkItem make_resp_item(void *context,
                                             erpc_cont_func_t cont_func,
-                                            size_t tag) {
+                                            void *tag) {
       BgWorkItem ret;
       ret.wi_type = BgWorkItemType::kResp;
       ret.context = context;
@@ -85,7 +88,7 @@ class Nexus {
     // Fields for continuations. For continuations, we have lost ownership of
     // the request slot, so the work item contains all needed info by value.
     erpc_cont_func_t cont_func;
-    size_t tag;
+    void *tag;
 
     bool is_req() const { return wi_type == BgWorkItemType::kReq; }
   };
@@ -99,8 +102,8 @@ class Nexus {
     MtQueue<BgWorkItem> *bg_req_queue_arr[kMaxBgThreads] = {nullptr};
 
     /// The Rpc thread's session management RX queue, installed by the Rpc.
-    /// Packets received by the SM thread for this Rpc are queued here.
-    MtQueue<SmPkt> sm_rx_queue;
+    /// Work items from the SM thread for this Rpc are queued here.
+    MtQueue<SmWorkItem> sm_rx_queue;
   };
 
   /// Check if a hook with for rpc_id exists in this Nexus. The caller must not
@@ -133,11 +136,17 @@ class Nexus {
   class SmThreadCtx {
    public:
     // Installed by the Nexus
-    std::string hostname;           ///< User-provided hostname of this node
-    uint16_t sm_udp_port;           ///< The Nexus's session management port
-    volatile bool *kill_switch;     ///< The Nexus's kill switch
+    std::string hostname;  ///< User-provided hostname of this node
+    uint16_t sm_udp_port;  ///< The Nexus's session management port
+    double freq_ghz;       ///< RDTSC frequency
+
+    /// The kill switch installed by the Nexus. When this becomes true, the SM
+    /// thread should terminate itself.
+    volatile bool *kill_switch;
+
+    HeartbeatMgr *heartbeat_mgr;    ///< The Nexus's heartbeat manager
     volatile Hook **reg_hooks_arr;  ///< The Nexus's hooks array
-    std::mutex *nexus_lock;
+    std::mutex *reg_hooks_lock;
   };
 
   /// The background thread
@@ -162,12 +171,12 @@ class Nexus {
   /// the Nexus and gets a copy of req_func_arr
   bool req_func_registration_allowed = true;
 
-  std::mutex nexus_lock;  ///< Lock for concurrent access to this Nexus
-
-  /// Rpc-Nexus hooks. Non-null hooks are valid.
+  /// Rpc-Nexus hooks. All non-null hooks are valid.
   Hook *reg_hooks_arr[kMaxRpcId + 1] = {nullptr};
+  std::mutex reg_hooks_lock;  ///< Lock for concurrent access to the hooks array
 
-  volatile bool kill_switch;  ///< Used to turn off SM and background threads
+  HeartbeatMgr heartbeat_mgr;  ///< The heartbeat manager
+  volatile bool kill_switch;   ///< Used to turn off SM and background threads
 
   std::thread sm_thread;  ///< The session management thread
   MtQueue<BgWorkItem> bg_req_queue[kMaxBgThreads];  ///< Background req queues
