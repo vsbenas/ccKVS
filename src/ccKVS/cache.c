@@ -147,7 +147,7 @@ void mica_batch_op_crcw(struct mica_kv* kv, int n, struct mica_op **op, struct m
 					resp[I].type = MICA_RESP_PUT_SUCCESS;
 
 				} else {
-					printf("Wrong opcode %d, I %d \n", op[I]->opcode, I);
+					printf("Wrong opcode %d, I %d n %d\n", op[I]->opcode, I, n);
 					assert(0);
 				}
 			}

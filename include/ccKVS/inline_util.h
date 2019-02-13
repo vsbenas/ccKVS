@@ -869,7 +869,7 @@ static inline uint16_t handle_cold_requests(struct extended_cache_op* ops, struc
 
 		//add_erpc_request(rm_id, &ops[op_i], size_of_op, size_of_op);
 		//mica_print_op((struct mica_op*) &ops[op_i]);
-		add_erpc_request((int) rm_id, &ops[op_i], size_of_op, size_of_op);
+		add_erpc_request((int) rm_id, &ops[op_i], size_of_op, size_of_op,local_client_id);
 
 
 

@@ -81,20 +81,20 @@ void cache_response(void *context, void* tag) {
 
 
 
-int cidx=0;
-struct extended_cache_op* cbatch[CACHE_BATCH_SIZE];
-int creq_length;
+int cidx[CLIENTS_PER_MACHINE];
+struct extended_cache_op* cbatch[CLIENTS_PER_MACHINE][CACHE_BATCH_SIZE];
+int creq_length[CLIENTS_PER_MACHINE];
 
 
 void add_cache_op(struct extended_cache_op* ops, size_t request_length, uint16_t local_client_id) {
 
-    assert(cidx < CACHE_BATCH_SIZE);
+    assert(cidx[local_client_id] < CACHE_BATCH_SIZE);
 
-    creq_length = request_length;
+    creq_length[local_client_id] = request_length;
 
 
-    cbatch[cidx]=ops;
-    cidx++;
+    cbatch[local_client_id][cidx]=ops;
+    cidx[local_client_id]++;
     c_stats[local_client_id].updates_per_client++;
 }
 
@@ -112,11 +112,11 @@ void broadcast_cache_ops(uint16_t clientid, int* cache_sessions) {
                 return;
             }
 
-            if(cidx == 0)
-                return;
+            if(cidx[local_client_id] == 0)
+                continue;
 
             int session = cache_sessions[rm_id];
-            int total_length = cidx * creq_length;
+            int total_length = cidx[clientid] * creq_length[clientid];
 
             assert(total_length < 1000);
 
@@ -125,7 +125,7 @@ void broadcast_cache_ops(uint16_t clientid, int* cache_sessions) {
             creq[clientid][rm_id] = crpc[clientid]->alloc_msg_buffer_or_die(total_length);
             cresp[clientid][rm_id] = crpc[clientid]->alloc_msg_buffer_or_die(total_length);
 
-            memcpy(creq[clientid][rm_id].buf, cbatch, total_length);
+            memcpy(creq[clientid][rm_id].buf, cbatch[clientid], total_length);
 
 
 
@@ -136,10 +136,11 @@ void broadcast_cache_ops(uint16_t clientid, int* cache_sessions) {
 
             crpc[clientid]->enqueue_request(session, kReqCache, &creq[clientid][rm_id], &cresp[clientid][rm_id], cache_response, rmid_tag);
 
+            cidx[clientid] = 0;
         }
 
     }
-    cidx = 0;
+    //cidx = 0;
 
 }
 
@@ -167,24 +168,24 @@ void receive_response(void *context, void *tag) {
 void sm_handler(int, erpc::SmEventType, erpc::SmErrType, void *) {}
 
 
-int idx[MACHINE_NUM];
-struct extended_cache_op* batch[MACHINE_NUM][WINDOW_SIZE];
-int req_length[MACHINE_NUM][WINDOW_SIZE];
+int idx[CLIENTS_PER_MACHINE][MACHINE_NUM];
+struct extended_cache_op* batch[CLIENTS_PER_MACHINE][MACHINE_NUM][WINDOW_SIZE];
+int req_length[CLIENTS_PER_MACHINE][MACHINE_NUM][WINDOW_SIZE];
 
 
 
-void add_erpc_request(int rm_id, struct extended_cache_op* ops, size_t request_length, size_t resp_length) {
+void add_erpc_request(int rm_id, struct extended_cache_op* ops, size_t request_length, size_t resp_length, uint16_t local_client_id) {
 
-    int id = idx[rm_id];
+    int id = idx[local_client_id][rm_id];
     assert(id < WINDOW_SIZE);
 
-    batch[rm_id][id] = ops;
+    batch[local_client_id][rm_id][id] = ops;
 
 
-    req_length[rm_id][id] = request_length;
+    req_length[local_client_id][rm_id][id] = request_length;
 
 
-    idx[rm_id]++;
+    idx[local_client_id][rm_id]++;
 
 }
 
@@ -194,7 +195,7 @@ void send_requests(uint16_t clientid, int *sessions) {
     for(int rm_id=0;rm_id<MACHINE_NUM;rm_id++) {
 
 
-        if( rm_id != machine_id && idx[rm_id] > 0) {
+        if( rm_id != machine_id && idx[clientid][rm_id] > 0) {
 
 
             int session = sessions[rm_id];
@@ -206,9 +207,9 @@ void send_requests(uint16_t clientid, int *sessions) {
             int total_length = 0;
 
            // printf("idx %i",idx[rm_id]);
-            for(int msg = 0; msg < idx[rm_id]; msg++) {
+            for(int msg = 0; msg < idx[clientid][rm_id]; msg++) {
 
-                total_length += req_length[rm_id][msg];
+                total_length += req_length[clientid][rm_id][msg];
 
             }
             assert(total_length < 1000); // for some reason ibv_post_send throws EINVAL
@@ -220,18 +221,18 @@ void send_requests(uint16_t clientid, int *sessions) {
 
             //printf("CLIENT: Sending request to session %d rm_id %d length %d values:\n",session, rm_id,total_length);
 
-            for(int msg = 0; msg < idx[rm_id]; msg++) {
+            for(int msg = 0; msg < idx[clientid][rm_id]; msg++) {
 
-                memcpy(ereq[clientid][rm_id].buf + offset , batch[rm_id][msg], req_length[rm_id][msg]);
+                memcpy(ereq[clientid][rm_id].buf + offset , batch[clientid][rm_id][msg], req_length[clientid][rm_id][msg]);
 
-                offset += req_length[rm_id][msg];
+                offset += req_length[clientid][rm_id][msg];
                 //mica_print_op((struct mica_op *) batch[rm_id][msg]);
                 //printf("(%i,%i,%s (%i)),",batch[rm_id][msg]->opcode,batch[rm_id][msg]->val_len,batch[rm_id][msg]->value,req_length[rm_id][msg]);
             }
 
             bufferused[clientid][rm_id]=1;
 
-            idx[rm_id]=0;
+            idx[clientid][rm_id]=0;
 
             void *rmid_tag = malloc(sizeof(int));
             memcpy(rmid_tag, (void *) &rm_id, sizeof(int));
