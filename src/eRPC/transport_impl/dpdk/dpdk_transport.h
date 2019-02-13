@@ -54,8 +54,8 @@ class DpdkTransport : public Transport {
   /// Maximum data bytes (i.e., non-header) in a packet
   static constexpr size_t kMaxDataPerPkt = (kMTU - sizeof(pkthdr_t));
 
-  DpdkTransport(uint8_t rpc_id, uint8_t phy_port, size_t numa_node,
-                FILE *trace_file);
+  DpdkTransport(uint16_t sm_udp_port, uint8_t rpc_id, uint8_t phy_port,
+                size_t numa_node, FILE *trace_file);
   void init_hugepage_structures(HugeAlloc *huge_alloc, uint8_t **rx_ring);
 
   ~DpdkTransport();
@@ -78,7 +78,9 @@ class DpdkTransport : public Transport {
                                         sizeof(rte_mbuf));
   }
 
-  /// Return the UDP port to use for queue \p qp_id on DPDK port \p phy_port
+  /// Return the UDP port to use for queue \p qp_id on DPDK port \p phy_port.
+  /// With DPDK, only one process is allowed to use \p phy_port, so we need not
+  /// account for other processes.
   static uint16_t udp_port_for_queue(size_t phy_port, size_t qp_id) {
     return kBaseEthUDPPort + (phy_port * kMaxQueuesPerPort) + qp_id;
   }

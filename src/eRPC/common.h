@@ -18,13 +18,14 @@
 #include <thread>
 #include <vector>
 #include "config.h"
+#include "rpc_constants.h"
 #include "tweakme.h"
 
 namespace erpc {
 
-// #define _unused(x) ((void)(x))  // Make production build happy
-// #define likely(x) __builtin_expect(!!(x), 1)
-// #define unlikely(x) __builtin_expect(!!(x), 0)
+#define _unused(x) ((void)(x))  // Make production build happy
+#define likely(x) __builtin_expect(!!(x), 1)
+#define unlikely(x) __builtin_expect(!!(x), 0)
 
 #define KB(x) (static_cast<size_t>(x) << 10)
 #define MB(x) (static_cast<size_t>(x) << 20)
@@ -38,26 +39,17 @@ static constexpr bool kTesting = TESTING;
 
 // General constants
 
-/// The max Rpc ID. 256 threads per machine is enough.
-static constexpr size_t kMaxRpcId = UINT8_MAX - 1;
-
 /// Array size to hold registered request handler functions
 static constexpr size_t kReqTypeArraySize = 1ull + UINT8_MAX;
 
-static constexpr size_t kMaxPhyPorts = 16;  ///< Max fabric device ports
-static constexpr size_t kMaxBgThreads = 8;  ///< Max Nexus background threads
-static constexpr size_t kMaxNumaNodes = 8;  ///< Maximum number of NUMA nodes
 static constexpr size_t kHugepageSize = (2 * 1024 * 1024);  ///< Hugepage size
 static constexpr size_t kMaxHostnameLen = 128;  ///< Max hostname length
 static constexpr size_t kMaxIssueMsgLen =  ///< Max debug issue message length
     (240 + kMaxHostnameLen * 2);           // Three lines and two hostnames
 
 // Invalid values
-static constexpr uint8_t kInvalidNUMANode = 2;  ///< 0/1 only for now
 static constexpr uint8_t kInvalidRpcId = kMaxRpcId + 1;
 static constexpr uint8_t kInvalidReqType = kReqTypeArraySize - 1;
-static constexpr uint8_t kInvalidPhyPort = kMaxPhyPorts + 1;
-static constexpr uint8_t kInvalidSmUdpPort = 0;
 
 /// Invalid eRPC thread ID of a background thread
 static constexpr size_t kInvalidBgETid = kMaxBgThreads;

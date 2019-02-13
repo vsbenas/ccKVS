@@ -8,10 +8,11 @@ namespace erpc {
 //
 // So sslot->rx_msgbuf may or may not be valid at this point.
 template <class TTr>
-void Rpc<TTr>::enqueue_response(ReqHandle *req_handle) {
+void Rpc<TTr>::enqueue_response(ReqHandle *req_handle, MsgBuffer *resp_msgbuf) {
   // When called from a background thread, enqueue to the foreground thread
   if (unlikely(!in_dispatch())) {
-    bg_queues._enqueue_response.unlocked_push(req_handle);
+    bg_queues._enqueue_response.unlocked_push(
+        enq_resp_args_t(req_handle, resp_msgbuf));
     return;
   }
 
@@ -34,9 +35,6 @@ void Rpc<TTr>::enqueue_response(ReqHandle *req_handle) {
 
     return;  // During session reset, don't add packets to TX burst
   }
-
-  MsgBuffer *resp_msgbuf =
-      sslot->prealloc_used ? &sslot->pre_resp_msgbuf : &sslot->dyn_resp_msgbuf;
 
   // Fill in packet 0's header
   pkthdr_t *resp_pkthdr_0 = resp_msgbuf->get_pkthdr_0();
@@ -119,7 +117,7 @@ void Rpc<TTr>::process_resp_one_st(SSlot *sslot, const pkthdr_t *pkthdr,
     if (ci.num_tx != wire_pkts(req_msgbuf, resp_msgbuf)) kick_rfr_st(sslot);
 
     // Hdr 0 was copied earlier, other headers are unneeded, so copy just data.
-    const size_t pkt_idx = resp_ntoi(pkthdr->pkt_num, resp_msgbuf->num_pkts);
+    const size_t pkt_idx = resp_ntoi(pkthdr->pkt_num, req_msgbuf->num_pkts);
     copy_data_to_msgbuf(resp_msgbuf, pkt_idx, pkthdr);
 
     if (ci.num_rx != wire_pkts(req_msgbuf, resp_msgbuf)) return;
@@ -142,7 +140,7 @@ void Rpc<TTr>::process_resp_one_st(SSlot *sslot, const pkthdr_t *pkthdr,
   // The sslot may get re-used immediately if there's backlog, or later from a
   // request enqueued by a background thread. So, copy-out needed fields.
   const erpc_cont_func_t _cont_func = ci.cont_func;
-  const size_t _tag = ci.tag;
+  void *_tag = ci.tag;
   const size_t _cont_etid = ci.cont_etid;
 
   Session *session = sslot->session;

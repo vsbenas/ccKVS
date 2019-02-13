@@ -9,6 +9,6 @@ class RawTransport;
 class DpdkTransport;
 
 #define CTransport IBTransport
-static constexpr size_t kHeadroom = 40;
-static constexpr size_t kIsRoCE = true;
+static constexpr size_t kHeadroom = 0;
+static constexpr size_t kIsRoCE = false;
 }

@@ -36,7 +36,9 @@ Rpc<TTr>::Rpc(Nexus *nexus, void *context, uint8_t rpc_id,
   creator_etid = get_etid();
 
   if (LOG_LEVEL >= LOG_LEVEL_REORDER) {
-    std::string trace_filename = "/tmp/erpc_trace_" + std::to_string(rpc_id);
+    auto trace_filename = "/tmp/erpc_trace_" +
+                          std::to_string(nexus->sm_udp_port) +
+                          std::to_string(rpc_id);
     trace_file = fopen(trace_filename.c_str(), "w");
     if (trace_file == nullptr) {
       delete huge_alloc;
@@ -47,7 +49,8 @@ Rpc<TTr>::Rpc(Nexus *nexus, void *context, uint8_t rpc_id,
   // Partially initialize the transport without using hugepages. This
   // initializes the transport's memory registration functions required for
   // the hugepage allocator.
-  transport = new TTr(rpc_id, phy_port, numa_node, trace_file);
+  transport =
+      new TTr(nexus->sm_udp_port, rpc_id, phy_port, numa_node, trace_file);
 
   huge_alloc = new HugeAlloc(kInitialHugeAllocSize, numa_node,
                              transport->reg_mr_func, transport->dereg_mr_func);
