@@ -2,9 +2,9 @@ LD      := g++  -fpermissive #-std=gnu11
 
 LIBS = -lerpc -lpthread -lnuma -ldl #ERPC
 
-LDFLAGS := -O3 -std=c++11 -flto -lgsl -lgslcblas -libverbs -lrt -lpthread -lmemcached -lnuma -lrdmacm -L ../eRPC $(LIBS)
+LDFLAGS := -O3 -std=c++11 -flto -lgsl -lgslcblas -libverbs -lrt -lpthread -lmemcached -lnuma -lrdmacm -L ../eRPC/build $(LIBS)
 CC  = g++ -fpermissive -Wno-write-strings
-CFLAGS   = -O3 -std=c++11 -I../../include/mica -I../../include/libhrd -I../../include/ccKVS -I../../include/optik -I ../eRPC -L ../eRPC $(LIBS) -DINFINIBAND=true
+CFLAGS   = -O3 -std=c++11 -I../../include/mica -I../../include/libhrd -I../../include/ccKVS -I../../include/optik -I ../eRPC/src -L ../eRPC/build $(LIBS) -DINFINIBAND=true
 APPS    := ccKVS-sc clean-o
 PROF    := -g -fno-omit-frame-pointer
 
