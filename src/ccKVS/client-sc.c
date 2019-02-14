@@ -54,7 +54,7 @@ void req_cache(erpc::ReqHandle *req_handle, void *context) {
 
     //printf("%s .\n",(char *) resp.buf);
 
-    crpc[local_client_id]->enqueue_response(req_handle,&resp);
+    //crpc[local_client_id]->enqueue_response(req_handle,&resp);
 
     c_stats[local_client_id].received_updates_per_client+=updates;
 
@@ -137,6 +137,15 @@ void broadcast_cache_ops(uint16_t clientid, int* cache_sessions) {
             crpc[clientid]->enqueue_request(session, kReqCache, &creq[clientid][rm_id], &cresp[clientid][rm_id], cache_response, rmid_tag);
 
             cidx[clientid] = 0;
+
+            crpc[clientid]->free_msg_buffer(creq[clientid][rm_id]);
+            crpc[clientid]->free_msg_buffer(cresp[clientid][rm_id]);
+            cache_bufferused[clientid][rm_id]=0;
+
+
+
+            free(tag);
+
         }
 
     }
