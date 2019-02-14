@@ -205,7 +205,7 @@ void *run_worker(void *arg) {
         }
         else {
             //cyan_printf("%d\n",reqs_per_loop);
-            w_stats[wrkr_lid].batches_per_worker++;
+            //w_stats[wrkr_lid].batches_per_worker++;
         }
         //sleep(1);
 
