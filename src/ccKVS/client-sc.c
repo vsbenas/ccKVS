@@ -118,7 +118,7 @@ void broadcast_cache_ops(uint16_t clientid, int* cache_sessions) {
             int session = cache_sessions[rm_id];
             int total_length = cidx[clientid] * creq_length[clientid];
 
-            assert(total_length < 1000);
+            //assert(total_length < 1000);
 
 
 
@@ -221,7 +221,8 @@ void send_requests(uint16_t clientid, int *sessions) {
                 total_length += req_length[clientid][rm_id][msg];
 
             }
-            assert(total_length < 1000); // for some reason ibv_post_send throws EINVAL
+            //assert(total_length < 1000); // for some reason ibv_post_send throws EINVAL
+
 
             ereq[clientid][rm_id] = crpc[clientid]->alloc_msg_buffer_or_die(total_length);
             eresp[clientid][rm_id] = crpc[clientid]->alloc_msg_buffer_or_die(total_length);
