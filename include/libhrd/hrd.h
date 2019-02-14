@@ -50,11 +50,11 @@
 
 #define HRD_CONNECT_IB_ATOMICS 0
 
-#define HERD_NUM_BKTS (8 * 1024) //(USE_BIG_OBJECTS == 1 ? (128 * 1024) : (2 * 1024 * 1024))
+#define HERD_NUM_BKTS (USE_BIG_OBJECTS == 1 ? (128 * 1024) : (2 * 1024 * 1024))
 #define HERD_LOG_CAP  (1024 * 1024 * 1024)
 
 
-#define HERD_NUM_KEYS (1024) //(USE_BIG_OBJECTS == 1 ? (512 * 1024) : (4 * 1024 * 1024))//(8 * 1024 * 1024)
+#define HERD_NUM_KEYS (USE_BIG_OBJECTS == 1 ? (512 * 1024) : (4 * 1024 * 1024))//(8 * 1024 * 1024)
 
 
 #define HERD_VALUE_SIZE (USE_BIG_OBJECTS == 1 ? ((EXTRA_CACHE_LINES * 64) + BASE_VALUE_SIZE) : BASE_VALUE_SIZE) //(169 + 64)// 46 + 64 + 64//32 //(46 + 64)
@@ -100,7 +100,7 @@
 // This is required for ROCE not sure yet why
 
 #define IB_PHYS_PORT 1
-#define USE_HUGE_PAGES 0
+#define USE_HUGE_PAGES 1
 /* Useful when `x = (x + 1) % N` is done in a loop */
 #define HRD_MOD_ADD(x, N) do { \
 	x = x + 1; \
