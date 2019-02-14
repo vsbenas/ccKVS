@@ -1,0 +1,1 @@
+g++    -rdynamic CMakeFiles/fixed_vector_test.dir/tests/util_tests/fixed_vector_test.cc.o  -o build/fixed_vector_test build/liberpc.a -Wl,-Bstatic -lgtest -Wl,-Bdynamic -lrt -lnuma -lpthread -lgflags -libverbs 

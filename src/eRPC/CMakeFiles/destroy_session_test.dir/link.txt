@@ -1,0 +1,1 @@
+g++    -rdynamic CMakeFiles/destroy_session_test.dir/tests/client_tests/destroy_session_test.cc.o  -o build/destroy_session_test build/liberpc.a -Wl,-Bstatic -lgtest -Wl,-Bdynamic -lrt -lnuma -lpthread -lgflags -libverbs 

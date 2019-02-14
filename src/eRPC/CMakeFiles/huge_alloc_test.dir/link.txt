@@ -1,0 +1,1 @@
+g++    -rdynamic CMakeFiles/huge_alloc_test.dir/tests/util_tests/huge_alloc_test.cc.o  -o build/huge_alloc_test build/liberpc.a -Wl,-Bstatic -lgtest -Wl,-Bdynamic -lrt -lnuma -lpthread -lgflags -libverbs 

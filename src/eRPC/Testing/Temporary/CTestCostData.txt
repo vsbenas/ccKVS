@@ -1,0 +1,18 @@
+create_session_test 1 0.478624
+destroy_session_test 1 3.27943
+small_msg_test 1 6.51521
+large_msg_test 1 6.03521
+req_in_cont_func_test 1 1.27435
+req_in_req_func_test 1 6.46737
+packet_loss_test 1 11.9105
+server_failure_test 0 0
+multi_process_test 1 1.27673
+rpc_sm_test 1 0.39025
+rpc_list_test 1 0.054492
+rpc_req_test 1 0.101336
+rpc_resp_test 1 0.0995309
+rpc_cr_test 1 0.054045
+rpc_rfr_test 1 0.055038
+rpc_kick_test 1 0.910204
+---
+server_failure_test

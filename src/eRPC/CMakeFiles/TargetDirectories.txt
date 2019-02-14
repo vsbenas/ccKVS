@@ -1,0 +1,4 @@
+/home/s1513031/ccKVS/src/eRPC/CMakeFiles/rebuild_cache.dir
+/home/s1513031/ccKVS/src/eRPC/CMakeFiles/edit_cache.dir
+/home/s1513031/ccKVS/src/eRPC/CMakeFiles/erpc.dir
+/home/s1513031/ccKVS/src/eRPC/CMakeFiles/test.dir

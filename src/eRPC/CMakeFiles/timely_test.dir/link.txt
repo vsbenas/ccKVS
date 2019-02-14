@@ -1,0 +1,1 @@
+g++    -rdynamic CMakeFiles/timely_test.dir/tests/util_tests/timely_test.cc.o  -o build/timely_test build/liberpc.a -Wl,-Bstatic -lgtest -Wl,-Bdynamic -lrt -lnuma -lpthread -lgflags -libverbs 
