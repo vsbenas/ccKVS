@@ -1,1 +1,0 @@
-g++    -rdynamic CMakeFiles/rand_test.dir/tests/util_tests/rand_test.cc.o  -o build/rand_test build/liberpc.a -Wl,-Bstatic -lgtest -Wl,-Bdynamic -lrt -lnuma -lpthread -lgflags -libverbs 

@@ -1,1 +1,0 @@
-g++    -rdynamic CMakeFiles/server_failure_test.dir/tests/client_tests/server_failure_test.cc.o  -o build/server_failure_test build/liberpc.a -Wl,-Bstatic -lgtest -Wl,-Bdynamic -lrt -lnuma -lpthread -lgflags -libverbs 

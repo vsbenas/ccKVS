@@ -95,10 +95,11 @@ using namespace std;
 #define BALANCE_REQS  (((ENABLE_WORKERS_CRCW == 1) && (ENABLE_THREAD_PARTITIONING_C_TO_W == 0)) ? BALANCE_REQS_ : 0) //
 
 #define WINDOW_SIZE 256 /* Maximum remote batch*/
+#define KVS_BATCH 239 /* maximum allowed to fit in one eRPC packet */
 #define LOCAL_WINDOW  66 //12 // 21 for 200
 #define LOCAL_REGIONS 3 // number of local regions per client
 #define LOCAL_REGION_SIZE (LOCAL_WINDOW / LOCAL_REGIONS)
-#define WS_PER_WORKER (ENABLE_THREAD_PARTITIONING_C_TO_W == 1 ? 22 : 20) //22 /* Number of outstanding requests kept by each client of any given worker*/
+#define WS_PER_WORKER (ENABLE_THREAD_PARTITIONING_C_TO_W == 1 ? KVS_BATCH : 20) //22 /* Number of outstanding requests kept by each client of any given worker*/
 #define MAX_OUTSTANDING_REQS (WS_PER_WORKER * (WORKER_NUM - WORKERS_PER_MACHINE))
 #define ENABLE_MULTI_BATCHES 0 // allow multiple batches
 #define MAX_REMOTE_RECV_WCS (ENABLE_MULTI_BATCHES == 1 ? (MAX(MAX_OUTSTANDING_REQS, WINDOW_SIZE)) : WINDOW_SIZE)
@@ -115,7 +116,7 @@ using namespace std;
 #define MAXIMUM_INLINE_SIZE 188
 
 //-----WORKER-------
-#define WORKER_MAX_BATCH 127
+#define WORKER_MAX_BATCH (WINDOW_SIZE-1)
 #define ENABLE_MINIMUM_WORKER_BATCHING 0
 #define WORKER_MINIMUM_BATCH 16 // DOES NOT WORK
 
@@ -195,7 +196,7 @@ using namespace std;
 #define MAX_BCAST_BATCH (ENABLE_MULTICAST == 1 ? 4 : 4) //8 //(128 / (MACHINE_NUM - 1)) // how many broadcasts can fit in a batch
 #define MESSAGES_IN_BCAST (ENABLE_MULTICAST == 1 ? 1 : (MACHINE_NUM - 1))
 #define MESSAGES_IN_BCAST_BATCH MAX_BCAST_BATCH * MESSAGES_IN_BCAST //must be smaller than the q_depth
-#define BCAST_TO_CACHE_BATCH 90 //100 // helps to keep small //47 for SC
+#define BCAST_TO_CACHE_BATCH 500 //100 // helps to keep small //47 for SC
 
 //----------SC flow control-----------------
 #define SC_CREDITS 30 //experiments with 33
