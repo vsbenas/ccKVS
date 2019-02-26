@@ -225,7 +225,8 @@ void send_requests(uint16_t clientid, int *sessions) {
 
 
             ereq[clientid][rm_id] = crpc[clientid]->alloc_msg_buffer_or_die(total_length);
-            eresp[clientid][rm_id] = crpc[clientid]->alloc_msg_buffer_or_die(total_length);
+            int resp_length = idx[clientid][rm_id] * sizeof(mica_resp);
+	    eresp[clientid][rm_id] = crpc[clientid]->alloc_msg_buffer_or_die(resp_length);
 
             int offset = 0;
 
