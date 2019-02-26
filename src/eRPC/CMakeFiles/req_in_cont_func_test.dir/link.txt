@@ -1,0 +1,1 @@
+g++    -rdynamic CMakeFiles/req_in_cont_func_test.dir/tests/client_tests/req_in_cont_func_test.cc.o  -o build/req_in_cont_func_test build/liberpc.a -Wl,-Bstatic -lgtest -Wl,-Bdynamic -lrt -lnuma -lpthread -lgflags -libverbs 

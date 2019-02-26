@@ -1,0 +1,1 @@
+g++    -rdynamic CMakeFiles/small_msg_test.dir/tests/client_tests/small_msg_test.cc.o  -o build/small_msg_test build/liberpc.a -Wl,-Bstatic -lgtest -Wl,-Bdynamic -lrt -lnuma -lpthread -lgflags -libverbs 

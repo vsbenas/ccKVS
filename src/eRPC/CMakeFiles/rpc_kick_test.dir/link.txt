@@ -1,0 +1,1 @@
+g++    -rdynamic CMakeFiles/rpc_kick_test.dir/tests/protocol_tests/rpc_kick_test.cc.o  -o build/rpc_kick_test build/liberpc.a -Wl,-Bstatic -lgtest -Wl,-Bdynamic -lrt -lnuma -lpthread -lgflags -libverbs 

@@ -1,0 +1,1 @@
+g++    -rdynamic CMakeFiles/multi_process_test.dir/tests/client_tests/multi_process_test.cc.o  -o build/multi_process_test build/liberpc.a -Wl,-Bstatic -lgtest -Wl,-Bdynamic -lrt -lnuma -lpthread -lgflags -libverbs 
