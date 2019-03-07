@@ -145,7 +145,7 @@ static inline void report_remote_latency(struct latency_flags* latency_info, uin
 	uint16_t i;
 	for (i = 0; i < prev_rem_req_i; i++) {
 		//	 printf("Looking for the req\n" );
-		if (wc[i].imm_data == REMOTE_LATENCY_MARK) {
+		//if (wc[i].imm_data == REMOTE_LATENCY_MARK) {
 			struct timespec end;
 			clock_gettime(CLOCK_MONOTONIC, &end);
 			int useconds = ((end.tv_sec - start->tv_sec) * 1000000) +
@@ -155,7 +155,7 @@ static inline void report_remote_latency(struct latency_flags* latency_info, uin
 			bookkeep_latency(useconds, REMOTE_REQ);
 			(latency_info->measured_req_flag) = NO_REQ;
 			break;
-		}
+		//}
 	}
 }
 
