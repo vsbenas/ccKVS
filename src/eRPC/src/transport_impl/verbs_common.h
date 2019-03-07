@@ -169,7 +169,7 @@ static void common_resolve_phy_port(uint8_t phy_port, size_t mtu,
                 ? IBV_LINK_LAYER_INFINIBAND
                 : IBV_LINK_LAYER_ETHERNET;
         if (port_attr.link_layer != expected_link_layer) {
-          throw std::runtime_error("Invalid link layer. Port link layer is " +
+		throw std::runtime_error("Invalid link layer. Port link layer is " +
                                    link_layer_str(port_attr.link_layer));
         }
 

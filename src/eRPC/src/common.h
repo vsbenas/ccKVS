@@ -22,11 +22,15 @@
 #include "tweakme.h"
 
 namespace erpc {
-
+#ifndef _unused
 #define _unused(x) ((void)(x))  // Make production build happy
+#endif
+#ifndef likely
 #define likely(x) __builtin_expect(!!(x), 1)
+#endif
+#ifndef unlikely
 #define unlikely(x) __builtin_expect(!!(x), 0)
-
+#endif
 #define KB(x) (static_cast<size_t>(x) << 10)
 #define MB(x) (static_cast<size_t>(x) << 20)
 #define GB(x) (static_cast<size_t>(x) << 30)
