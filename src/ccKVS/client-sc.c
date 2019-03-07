@@ -468,6 +468,15 @@ void *run_client(void *arg)
         if(_continue)
             continue;
 
+        if(previous_wr_i > 0) {
+            outstanding_rem_reqs -= previous_wr_i;
+            if (ENABLE_ASSERTIONS) assert(prev_rem_req_i <= MAX_REMOTE_RECV_WCS);
+            if ((MEASURE_LATENCY == 1) && ((&latency_info->measured_req_flag) == REMOTE_REQ)) {
+                report_remote_latency(&latency_info, prev_rem_req_i, wc, &start);
+            }
+        }
+
+
         // Swap the op buffers to facilitate correct ordering
         swap_ops(&ops, &next_ops, &third_ops,
                  &resp, &next_resp, &third_resp,
