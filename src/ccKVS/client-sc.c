@@ -19,7 +19,7 @@ erpc::MsgBuffer cresp[CLIENTS_PER_MACHINE][MACHINE_NUM];
 int cache_bufferused[CLIENTS_PER_MACHINE][MACHINE_NUM];
 
 
-struct timespec start[CLIENTS_PER_MACHINE];
+struct timespec gstart[CLIENTS_PER_MACHINE];
 
 
 struct latency_flags latency_info[CLIENTS_PER_MACHINE];
@@ -179,8 +179,8 @@ void receive_response(void *context, void *tag) {
     {
         struct timespec end;
         clock_gettime(CLOCK_MONOTONIC, &end);
-        int useconds = ((end.tv_sec - start[local_client_id].tv_sec) * 1000000) +
-                       ((end.tv_nsec - start[local_client_id].tv_nsec) / 1000);  //(end.tv_nsec - start->tv_nsec) / 1000;
+        int useconds = ((end.tv_sec - gstart[local_client_id].tv_sec) * 1000000) +
+                       ((end.tv_nsec - gstart[local_client_id].tv_nsec) / 1000);  //(end.tv_nsec - start->tv_nsec) / 1000;
         if (ENABLE_ASSERTIONS) assert(useconds > 0);
         //		printf("Latency of a Remote read %u us\n", useconds);
         bookkeep_latency(useconds, REMOTE_REQ);
@@ -508,7 +508,7 @@ void *run_client(void *arg)
         ------------------------------PROBE THE CACHE--------------------------------------
         ---------------------------------------------------------------------------*/
         trace_iter = batch_from_trace_to_cache(trace_iter, local_client_id, trace, ops, resp,
-                                               key_homes, 0, next_op_i, &latency_info[local_client_id], &start[local_client_id],
+                                               key_homes, 0, next_op_i, &latency_info[local_client_id], &gstart[local_client_id],
                                                hottest_keys_pointers);
 
 
@@ -546,7 +546,7 @@ void *run_client(void *arg)
                                     rem_send_sgl, wc, remote_tot_tx, worker_qp_i,
                                     per_worker_outstanding, &outstanding_rem_reqs, remote_for_each_worker,
                                     ws, clt_gid, local_client_id, NULL, local_worker_id, protocol,
-                                    &latency_info[local_client_id], &start[local_client_id], &local_measure, hottest_keys_pointers); // IMPORTANT
+                                    &latency_info[local_client_id], &gstart[local_client_id], &local_measure, hottest_keys_pointers); // IMPORTANT
 
 
 
