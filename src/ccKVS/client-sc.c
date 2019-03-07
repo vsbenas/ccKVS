@@ -22,7 +22,7 @@ int cache_bufferused[CLIENTS_PER_MACHINE][MACHINE_NUM];
 struct timespec gstart[CLIENTS_PER_MACHINE];
 
 
-struct latency_flags latency_info[CLIENTS_PER_MACHINE];
+struct latency_flags glatency_info[CLIENTS_PER_MACHINE];
 
 
 #include "inline_util.h"
@@ -175,7 +175,7 @@ void receive_response(void *context, void *tag) {
 
 
 
-    if ((MEASURE_LATENCY == 1) && latency_info[local_client_id].measured_req_flag == REMOTE_REQ)
+    if ((MEASURE_LATENCY == 1) && glatency_info[local_client_id].measured_req_flag == REMOTE_REQ)
     {
         struct timespec end;
         clock_gettime(CLOCK_MONOTONIC, &end);
@@ -184,7 +184,7 @@ void receive_response(void *context, void *tag) {
         if (ENABLE_ASSERTIONS) assert(useconds > 0);
         //		printf("Latency of a Remote read %u us\n", useconds);
         bookkeep_latency(useconds, REMOTE_REQ);
-        latency_info[local_client_id].measured_req_flag = NO_REQ;
+        glatency_info[local_client_id].measured_req_flag = NO_REQ;
     }
 
 
@@ -483,13 +483,14 @@ void *run_client(void *arg)
         if(_continue)
             continue;
 
-        /* if(previous_wr_i > 0) {
+        if(previous_wr_i > 0) {
             outstanding_rem_reqs -= previous_wr_i;
-            if (ENABLE_ASSERTIONS) assert(prev_rem_req_i <= MAX_REMOTE_RECV_WCS);
-            if ((MEASURE_LATENCY == 1) && (((&latency_info)->measured_req_flag) == REMOTE_REQ)) {
-                report_remote_latency(&latency_info, prev_rem_req_i, wc, &start);
-            }
-        }*/
+        }
+        /*if (ENABLE_ASSERTIONS) assert(prev_rem_req_i <= MAX_REMOTE_RECV_WCS);
+           if ((MEASURE_LATENCY == 1) && (((&latency_info)->measured_req_flag) == REMOTE_REQ)) {
+               report_remote_latency(&latency_info, prev_rem_req_i, wc, &start);
+           }
+       }*/
 
 
 
@@ -508,7 +509,7 @@ void *run_client(void *arg)
         ------------------------------PROBE THE CACHE--------------------------------------
         ---------------------------------------------------------------------------*/
         trace_iter = batch_from_trace_to_cache(trace_iter, local_client_id, trace, ops, resp,
-                                               key_homes, 0, next_op_i, &latency_info[local_client_id], &gstart[local_client_id],
+                                               key_homes, 0, next_op_i, &glatency_info[local_client_id], &gstart[local_client_id],
                                                hottest_keys_pointers);
 
 
@@ -546,7 +547,7 @@ void *run_client(void *arg)
                                     rem_send_sgl, wc, remote_tot_tx, worker_qp_i,
                                     per_worker_outstanding, &outstanding_rem_reqs, remote_for_each_worker,
                                     ws, clt_gid, local_client_id, NULL, local_worker_id, protocol,
-                                    &latency_info[local_client_id], &gstart[local_client_id], &local_measure, hottest_keys_pointers); // IMPORTANT
+                                    &glatency_info[local_client_id], &gstart[local_client_id], &local_measure, hottest_keys_pointers); // IMPORTANT
 
 
 
@@ -559,7 +560,7 @@ void *run_client(void *arg)
 
         if(wr_i > 0) { // from poll_and_send_remotes
             if (MEASURE_LATENCY == 1)
-                latency_info[local_client_id].measured_req_flag = REMOTE_REQ;
+                glatency_info[local_client_id].measured_req_flag = REMOTE_REQ;
 
             c_stats[local_client_id].remote_messages_per_client += wr_i;
 
