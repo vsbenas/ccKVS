@@ -471,7 +471,7 @@ void *run_client(void *arg)
         if(previous_wr_i > 0) {
             outstanding_rem_reqs -= previous_wr_i;
             if (ENABLE_ASSERTIONS) assert(prev_rem_req_i <= MAX_REMOTE_RECV_WCS);
-            if ((MEASURE_LATENCY == 1) && ((&latency_info->measured_req_flag) == REMOTE_REQ)) {
+            if ((MEASURE_LATENCY == 1) && (((&latency_info)->measured_req_flag) == REMOTE_REQ)) {
                 report_remote_latency(&latency_info, prev_rem_req_i, wc, &start);
             }
         }
