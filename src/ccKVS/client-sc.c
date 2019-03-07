@@ -21,10 +21,8 @@ int cache_bufferused[CLIENTS_PER_MACHINE][MACHINE_NUM];
 
 struct timespec start[CLIENTS_PER_MACHINE];
 
-struct latency_flags latency_info[CLIENTS_PER_MACHINE] = {
-        .measured_req_flag = NO_REQ,
-        .last_measured_op_i = 0,
-};
+
+struct latency_flags latency_info[CLIENTS_PER_MACHINE];
 
 
 #include "inline_util.h"
@@ -181,8 +179,8 @@ void receive_response(void *context, void *tag) {
     {
         struct timespec end;
         clock_gettime(CLOCK_MONOTONIC, &end);
-        int useconds = ((end.tv_sec - start[local_client_id]->tv_sec) * 1000000) +
-                       ((end.tv_nsec - start[local_client_id]->tv_nsec) / 1000);  //(end.tv_nsec - start->tv_nsec) / 1000;
+        int useconds = ((end.tv_sec - start[local_client_id].tv_sec) * 1000000) +
+                       ((end.tv_nsec - start[local_client_id].tv_nsec) / 1000);  //(end.tv_nsec - start->tv_nsec) / 1000;
         if (ENABLE_ASSERTIONS) assert(useconds > 0);
         //		printf("Latency of a Remote read %u us\n", useconds);
         bookkeep_latency(useconds, REMOTE_REQ);
