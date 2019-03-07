@@ -19,6 +19,13 @@ erpc::MsgBuffer cresp[CLIENTS_PER_MACHINE][MACHINE_NUM];
 int cache_bufferused[CLIENTS_PER_MACHINE][MACHINE_NUM];
 
 
+struct timespec start[CLIENTS_PER_MACHINE];
+
+struct latency_flags latency_info[CLIENTS_PER_MACHINE] = {
+        .measured_req_flag = NO_REQ,
+        .last_measured_op_i = 0,
+};
+
 
 #include "inline_util.h"
 
@@ -168,6 +175,19 @@ void receive_response(void *context, void *tag) {
     crpc[local_client_id]->free_msg_buffer(eresp[local_client_id][rm_id]);
     bufferused[local_client_id][rm_id]=0;
 
+
+
+    if ((MEASURE_LATENCY == 1) && latency_info[local_client_id].measured_req_flag == REMOTE_REQ)
+    {
+        struct timespec end;
+        clock_gettime(CLOCK_MONOTONIC, &end);
+        int useconds = ((end.tv_sec - start[local_client_id]->tv_sec) * 1000000) +
+                       ((end.tv_nsec - start[local_client_id]->tv_nsec) / 1000);  //(end.tv_nsec - start->tv_nsec) / 1000;
+        if (ENABLE_ASSERTIONS) assert(useconds > 0);
+        //		printf("Latency of a Remote read %u us\n", useconds);
+        bookkeep_latency(useconds, REMOTE_REQ);
+        latency_info[local_client_id].measured_req_flag = NO_REQ;
+    }
 
 
     free(tag);
@@ -338,10 +358,7 @@ void *run_client(void *arg)
             .local_latency_start_polling = 0,
             .flag_to_poll = NULL,
     };
-    struct latency_flags latency_info = {
-            .measured_req_flag = NO_REQ,
-            .last_measured_op_i = 0,
-    };
+
 
     struct cache_op *update_ops;
     struct key_home *key_homes, *next_key_homes, *third_key_homes;
@@ -372,7 +389,7 @@ void *run_client(void *arg)
 
 
     memset(per_worker_outstanding, 0, WORKER_NUM);
-    struct timespec start, end;
+    struct timespec end;
     uint32_t dbg_per_worker[3]= {0};
 
 
@@ -468,13 +485,14 @@ void *run_client(void *arg)
         if(_continue)
             continue;
 
-        if(previous_wr_i > 0) {
+        /* if(previous_wr_i > 0) {
             outstanding_rem_reqs -= previous_wr_i;
             if (ENABLE_ASSERTIONS) assert(prev_rem_req_i <= MAX_REMOTE_RECV_WCS);
             if ((MEASURE_LATENCY == 1) && (((&latency_info)->measured_req_flag) == REMOTE_REQ)) {
                 report_remote_latency(&latency_info, prev_rem_req_i, wc, &start);
             }
-        }
+        }*/
+
 
 
         // Swap the op buffers to facilitate correct ordering
@@ -492,7 +510,7 @@ void *run_client(void *arg)
         ------------------------------PROBE THE CACHE--------------------------------------
         ---------------------------------------------------------------------------*/
         trace_iter = batch_from_trace_to_cache(trace_iter, local_client_id, trace, ops, resp,
-                                               key_homes, 0, next_op_i, &latency_info, &start,
+                                               key_homes, 0, next_op_i, &latency_info[local_client_id], &start[local_client_id],
                                                hottest_keys_pointers);
 
 
@@ -530,7 +548,7 @@ void *run_client(void *arg)
                                     rem_send_sgl, wc, remote_tot_tx, worker_qp_i,
                                     per_worker_outstanding, &outstanding_rem_reqs, remote_for_each_worker,
                                     ws, clt_gid, local_client_id, NULL, local_worker_id, protocol,
-                                    &latency_info, &start, &local_measure, hottest_keys_pointers); // IMPORTANT
+                                    &latency_info[local_client_id], &start[local_client_id], &local_measure, hottest_keys_pointers); // IMPORTANT
 
 
 
@@ -542,6 +560,8 @@ void *run_client(void *arg)
 
 
         if(wr_i > 0) { // from poll_and_send_remotes
+            if (MEASURE_LATENCY == 1)
+                latency_info[local_client_id].measured_req_flag = REMOTE_REQ;
 
             c_stats[local_client_id].remote_messages_per_client += wr_i;
 
