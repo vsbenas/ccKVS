@@ -31,7 +31,7 @@ using namespace std;
 
 #define WORKERS_PER_MACHINE 10
 #define CLIENTS_PER_MACHINE 10
-#define MACHINE_NUM 2
+#define MACHINE_NUM 3
 
 #define CACHE_SOCKET 0 //(WORKERS_PER_MACHINE < 8 ? 0 : 1 )// socket where the cache is bind
 
@@ -55,8 +55,8 @@ using namespace std;
 #define ENABLE_HUGE_PAGES_FOR_WORKER_REQUEST_REGION 0 // it appears enabling this brings some inconsistencies in performance
 
 #define ENABLE_CACHE_STATS 0
-#define EXIT_ON_PRINT 0
-#define PRINT_NUM 4
+#define EXIT_ON_PRINT 1
+#define PRINT_NUM 3
 #define DUMP_STATS_2_FILE 0
 
 
@@ -95,7 +95,7 @@ using namespace std;
 #define BALANCE_REQS  (((ENABLE_WORKERS_CRCW == 1) && (ENABLE_THREAD_PARTITIONING_C_TO_W == 0)) ? BALANCE_REQS_ : 0) //
 
 #define WINDOW_SIZE 256 /* Maximum remote batch*/
-#define KVS_BATCH 239 /* maximum allowed to fit in one eRPC packet */
+#define KVS_BATCH 20 /* maximum allowed to fit in one eRPC packet */
 #define LOCAL_WINDOW  66 //12 // 21 for 200
 #define LOCAL_REGIONS 3 // number of local regions per client
 #define LOCAL_REGION_SIZE (LOCAL_WINDOW / LOCAL_REGIONS)
@@ -142,7 +142,7 @@ using namespace std;
 #define ENABLE_SS_DEBUGGING 0 // first thing to open in a deadlock
 #define ENABLE_ASSERTIONS 1
 #define ENABLE_STAT_COUNTING 1
-#define MEASURE_LATENCY 0
+#define MEASURE_LATENCY 1
 #define REMOTE_LATENCY_MARK 100 // mark a remote request for measurement by attaching this to the imm_data of the wr
 #define ENABLE_WINDOW_STATS 0
 
