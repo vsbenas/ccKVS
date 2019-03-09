@@ -175,7 +175,7 @@ void receive_response(void *context, void *tag) {
 
 
 
-    if ((MEASURE_LATENCY == 1) && glatency_info[local_client_id].measured_req_flag == REMOTE_REQ)
+    if ((MEASURE_LATENCY == 1) && local_client_id == 0 && machine_id == 0 && glatency_info[local_client_id].measured_req_flag == REMOTE_REQ)
     {
         struct timespec end;
         clock_gettime(CLOCK_MONOTONIC, &end);
@@ -559,10 +559,10 @@ void *run_client(void *arg)
 
 
         if(wr_i > 0) { // from poll_and_send_remotes
-            if (MEASURE_LATENCY == 1) {
+            /*if (MEASURE_LATENCY == 1) {
                 clock_gettime(CLOCK_MONOTONIC, &gstart[local_client_id]);
                 glatency_info[local_client_id].measured_req_flag = REMOTE_REQ;
-            }
+            }*/
             c_stats[local_client_id].remote_messages_per_client += wr_i;
 
             c_stats[local_client_id].batches_per_client++;
