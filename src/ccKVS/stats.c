@@ -32,7 +32,7 @@ void *print_stats(void* no_arg)
             printf("---------------------------------------\n");
             printf("------------RUN TERMINATED-------------\n");
             printf("---------------------------------------\n");
-            printf("Average Throughput: %.2f", (throughput_sum / num_loops));
+            printf("Average Throughput: %.2f\n", (throughput_sum / num_loops));
             exit(0);
         }
         seconds *= MILLION; // compute only MIOPS
