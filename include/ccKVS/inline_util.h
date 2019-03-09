@@ -845,7 +845,8 @@ static inline uint16_t handle_cold_requests(struct extended_cache_op* ops, struc
 		}
 
 		per_worker_outstanding[worker_id]++;
-		if (per_worker_outstanding[worker_id] > WS_PER_WORKER ) {
+		if (per_worker_outstanding[worker_id] > KVS_BATCH ) {
+		    break;
 			//
 			// 		printf("outstanding %d for worker %d \n", per_worker_outstanding[worker_id], worker_id);
 
