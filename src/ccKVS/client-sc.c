@@ -175,7 +175,7 @@ void receive_response(void *context, void *tag) {
 
 
 
-    if ((MEASURE_LATENCY == 1) && local_client_id == 0 && machine_id == 0 && glatency_info[local_client_id].measured_req_flag == REMOTE_REQ)
+    if ((MEASURE_LATENCY == 1) && local_client_id == 0 && machine_id == 0)
     {
         struct timespec end;
         clock_gettime(CLOCK_MONOTONIC, &end);
@@ -503,11 +503,16 @@ void *run_client(void *arg)
             // exit(0);
             credit_debug_cnt = 0;
         }
-
+        if((MEASURE_LATENCY == 1) && local_client_id == 0 && machine_id == 0)
+        {
+            clock_gettime(CLOCK_MONOTONIC, &gstart[local_client_id]);
+        }
 
         /* ---------------------------------------------------------------------------
         ------------------------------PROBE THE CACHE--------------------------------------
         ---------------------------------------------------------------------------*/
+
+
         trace_iter = batch_from_trace_to_cache(trace_iter, local_client_id, trace, ops, resp,
                                                key_homes, 0, next_op_i, &glatency_info[local_client_id], &gstart[local_client_id],
                                                hottest_keys_pointers);

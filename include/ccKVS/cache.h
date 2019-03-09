@@ -199,7 +199,7 @@ static inline void start_measurement(struct timespec* start, struct latency_flag
 //		green_printf("Measuring a req %llu, opcode %d, flag %d op_i %d \n",
 //								 c_stats[local_client_id].batches_per_client, opcode, latency_info->measured_req_flag, latency_info->last_measured_op_i);
 
-			clock_gettime(CLOCK_MONOTONIC, start);
+			//clock_gettime(CLOCK_MONOTONIC, start);
 
 			if (ENABLE_ASSERTIONS) assert(latency_info->measured_req_flag != NO_REQ);
 			if ((latency_info->measured_req_flag) == REMOTE_REQ) {
