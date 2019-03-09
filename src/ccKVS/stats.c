@@ -1,6 +1,7 @@
 #include "util.h"
 #include "inline_util.h"
-
+double throughput_sum = 0;
+int num_loops = 0;
 void *print_stats(void* no_arg)
 {
     int j;
@@ -31,6 +32,7 @@ void *print_stats(void* no_arg)
             printf("---------------------------------------\n");
             printf("------------RUN TERMINATED-------------\n");
             printf("---------------------------------------\n");
+            printf("Average Throughput: %.2f", (throughput_sum / num_loops));
             exit(0);
         }
         seconds *= MILLION; // compute only MIOPS
@@ -91,6 +93,9 @@ void *print_stats(void* no_arg)
         memcpy(prev_c_stats, curr_c_stats, CLIENTS_PER_MACHINE * (sizeof(struct client_stats)));
         memcpy(prev_w_stats, curr_w_stats, WORKERS_PER_MACHINE * (sizeof(struct worker_stats)));
         total_throughput = (all_clients_cache_hits + all_workers_remotes + all_workers_locals) / seconds;
+
+        throughput_sum += total_throughput;
+        num_loops++;
         all_clients_throughput = all_clients_cache_hits / seconds;
         all_workers_throughput = (all_workers_remotes + all_workers_locals) / seconds;
         printf("---------------PRINT %d time elapsed %.5f---------------\n", print_count, seconds / MILLION);
@@ -198,7 +203,7 @@ void print_latency_stats(void){
             "SS" //Strong Consistency (stalling)
     };
 
-    sprintf(filename, "%s/latency_stats_%s_%s_%s_s_%d_a_%d_v_%d_m_%d_c_%d_w_%d_r_%d%s_C_%d.csv", path,
+    sprintf(filename, "%s/latency_stats_%dm.csv",path,MACHINE_NUM); /*_%s_%s_%s_s_%d_a_%d_v_%d_m_%d_c_%d_w_%d_r_%d%s_C_%d.csv", path,
             DISABLE_CACHE == 1 ? "BS" : exectype[protocol],
             LOAD_BALANCE == 1 ? "UNIF" : "SKEW",
             EMULATING_CREW == 1 ? "CREW" : "EREW",
@@ -208,7 +213,7 @@ void print_latency_stats(void){
             MACHINE_NUM, CLIENTS_PER_MACHINE,
             WORKERS_PER_MACHINE, WRITE_RATIO,
             BALANCE_HOT_WRITES == 1  ? "_lbw" : "",
-            CACHE_BATCH_SIZE);
+            CACHE_BATCH_SIZE);*/
 
     latency_stats_fd = fopen(filename, "w");
     fprintf(latency_stats_fd, "#---------------- Remote Reqs --------------\n");
