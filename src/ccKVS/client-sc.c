@@ -258,7 +258,8 @@ void send_requests(uint16_t clientid, int *sessions) {
                 //mica_print_op((struct mica_op *) batch[rm_id][msg]);
                 //printf("(%i,%i,%s (%i)),",batch[rm_id][msg]->opcode,batch[rm_id][msg]->val_len,batch[rm_id][msg]->value,req_length[rm_id][msg]);
             }
-
+	    //if(clientid == 0)
+		//    cyan_printf("%i ",idx[clientid][rm_id]);
             bufferused[clientid][rm_id]=1;
 
             idx[clientid][rm_id]=0;

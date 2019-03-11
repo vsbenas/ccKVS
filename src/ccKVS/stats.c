@@ -128,6 +128,14 @@ void *print_stats(void* no_arg)
             dump_stats_2_file(&all_stats);
         green_printf("SYSTEM MIOPS: %.5f Cache MIOPS: %.5f WORKER: MIOPS: %.5f \n",
                      total_throughput, all_clients_throughput, all_workers_throughput);
+	if (EXIT_ON_PRINT == 1 && print_count+1 == PRINT_NUM) {
+            if (MEASURE_LATENCY && machine_id == 0) print_latency_stats();
+            printf("---------------------------------------\n");
+            printf("------------RUN TERMINATED-------------\n");
+            printf("---------------------------------------\n");
+            printf("Average Throughput: %.2f\n", (throughput_sum / num_loops));
+            exit(0);
+        }
 
     }
 }

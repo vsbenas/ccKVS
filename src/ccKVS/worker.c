@@ -51,7 +51,7 @@ void req_handler(erpc::ReqHandle *req_handle, void *worker) {
     KVS_BATCH_OP(&kv, wr_i, op_ptr_arr, mica_resp_arr);
     //printf("asking %d for %d\n",size,wr_i);
     rpc[workerid]->resize_msg_buffer(&resp, size);
-
+    //if(workerid == 0) printf("%i ",wr_i);
 
     memcpy((void *) resp.buf, (void *) req->buf, size);
 

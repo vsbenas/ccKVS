@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
 			CPU_ZERO(&cpus_c);
 			CPU_SET(c_core, &cpus_c);
 			pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpus_c);
-			pthread_create(&thread_arr[i], NULL, run_client, &param_arr[i]);// change NULL here to &attr to get the thread affinity
+			pthread_create(&thread_arr[i], &attr, run_client, &param_arr[i]);// change NULL here to &attr to get the thread affinity
 			//pthread_create(&thread_arr[i], NULL, run_client, &param_arr[i]);// change NULL here to &attr to get the thread affinity
 			occupied_cores[c_core] = 1;
 		}
@@ -242,7 +242,7 @@ int main(int argc, char *argv[])
 			CPU_SET(w_core, &cpus_w);
 
 			pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpus_w);
-			pthread_create(&thread_arr[i + CLIENTS_PER_MACHINE], NULL, run_worker, &param_arr[i]);// change NULL here to &attr to get the thread affinity
+			pthread_create(&thread_arr[i + CLIENTS_PER_MACHINE], &attr, run_worker, &param_arr[i]);// change NULL here to &attr to get the thread affinity
 			occupied_cores[w_core] = 1;
 		}
 	}
