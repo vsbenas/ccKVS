@@ -25,7 +25,7 @@ extern uint64_t seed;
 #include "rpc.h"
 
 extern std::vector<char*> ip_vector;
-extern erpc::Nexus *nexus;
+extern erpc::Nexus *nexus[SOCKET_NUM];
 
 
 static constexpr uint16_t worker_port = 31850;
