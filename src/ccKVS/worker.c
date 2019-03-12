@@ -67,7 +67,7 @@ void drain_batch(uint16_t workerid)
 {
 
 
-    KVS_BATCH_OP(&kv, total_ops[workerid], op_ptr_arr, mica_resp_arr);
+    KVS_BATCH_OP(&kv, total_ops[workerid], op_ptr_arr[workerid], mica_resp_arr[workerid]);
 
     int offset = 0;
     for(int i=0;i < reqs_per_loop[workerid]; i++) {
