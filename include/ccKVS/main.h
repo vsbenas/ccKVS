@@ -29,9 +29,9 @@ using namespace std;
 #define MAX_SERVER_PORTS 1 // better not change that
 
 
-#define WORKERS_PER_MACHINE 10
-#define CLIENTS_PER_MACHINE 10
-#define MACHINE_NUM 2
+#define WORKERS_PER_MACHINE 20
+#define CLIENTS_PER_MACHINE 20
+#define MACHINE_NUM 4
 
 #define CACHE_SOCKET 0 //(WORKERS_PER_MACHINE < 8 ? 0 : 1 )// socket where the cache is bind
 
@@ -95,7 +95,7 @@ using namespace std;
 #define BALANCE_REQS  (((ENABLE_WORKERS_CRCW == 1) && (ENABLE_THREAD_PARTITIONING_C_TO_W == 0)) ? BALANCE_REQS_ : 0) //
 
 #define WINDOW_SIZE 256 /* Maximum remote batch*/
-#define KVS_BATCH 20 /* maximum allowed to fit in one eRPC packet */
+#define KVS_BATCH 100 /* maximum allowed to fit in one eRPC packet */
 #define LOCAL_WINDOW  66 //12 // 21 for 200
 #define LOCAL_REGIONS 3 // number of local regions per client
 #define LOCAL_REGION_SIZE (LOCAL_WINDOW / LOCAL_REGIONS)

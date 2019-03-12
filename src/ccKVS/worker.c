@@ -241,19 +241,15 @@ void *run_worker(void *arg) {
         }
         while(oldreqs != reqs_per_loop[wrkr_lid]);
 
+        if (reqs_per_loop[wrkr_lid] == 0) {
+            w_stats[wrkr_lid].empty_polls_per_worker++;
+            continue; // no request was found, start over
+        }
         // KVS-BATCH
 
         drain_batch(wrkr_lid);
 
 
-        if (reqs_per_loop[wrkr_lid] == 0) {
-            w_stats[wrkr_lid].empty_polls_per_worker++;
-            continue; // no request was found, start over
-        }
-        else {
-            //cyan_printf("%d\n",reqs_per_loop);
-            //w_stats[wrkr_lid].batches_per_worker++;
-        }
         //sleep(1);
 
 		wr_i = 0;
