@@ -10,7 +10,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dc75651b-b85e-4dea-b795-da7504daa5a1" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/include/ccKVS/util.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/ccKVS/util.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ccKVS/client-sc.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/ccKVS/client-sc.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ccKVS/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/ccKVS/main.c" afterDir="false" />
@@ -36,36 +35,45 @@
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="c" value="15" />
-          <entry key="h" value="9" />
+          <entry key="h" value="10" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="ObjectiveC" value="24" />
+          <entry key="ObjectiveC" value="25" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="c" value="864" />
-          <entry key="dummy" value="544" />
+          <entry key="c" value="876" />
+          <entry key="dummy" value="562" />
           <entry key="h" value="34" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="ObjectiveC" value="898" />
-          <entry key="PLAIN_TEXT" value="544" />
+          <entry key="ObjectiveC" value="910" />
+          <entry key="PLAIN_TEXT" value="562" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/ccKVS/client-sc.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="289">
-              <caret line="405" lean-forward="true" selection-start-line="405" selection-end-line="405" />
+            <state relative-caret-position="18">
+              <caret line="403" lean-forward="true" selection-start-line="403" selection-end-line="403" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/eRPC/src/transport_impl/verbs_common.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="371">
+              <caret line="63" column="1" lean-forward="true" selection-start-line="63" selection-start-column="1" selection-end-line="63" selection-end-column="1" />
             </state>
           </provider>
         </entry>
@@ -73,8 +81,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/ccKVS/main.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="355">
-              <caret line="254" lean-forward="true" selection-start-line="254" selection-end-line="254" />
+            <state relative-caret-position="18">
+              <caret line="207" lean-forward="true" selection-start-line="207" selection-end-line="207" />
               <folding>
                 <element signature="e#7157#7879#0" expanded="true" />
               </folding>
@@ -85,8 +93,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/include/ccKVS/util.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="73">
-              <caret line="16" column="17" lean-forward="true" selection-start-line="16" selection-start-column="17" selection-end-line="16" selection-end-column="17" />
+            <state relative-caret-position="271">
+              <caret line="27" column="25" lean-forward="true" selection-start-line="27" selection-start-column="25" selection-end-line="27" selection-end-column="25" />
             </state>
           </provider>
         </entry>
@@ -100,20 +108,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/ccKVS/worker.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="225">
-              <caret line="101" column="32" lean-forward="true" selection-start-line="101" selection-start-column="32" selection-end-line="101" selection-end-column="32" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/include/ccKVS/inline_util.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="15048">
-              <caret line="836" selection-start-line="836" selection-end-line="836" />
+            <state relative-caret-position="135">
+              <caret line="98" lean-forward="true" selection-start-line="98" selection-end-line="98" />
             </state>
           </provider>
         </entry>
@@ -161,9 +160,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>remotes_per_client</find>
-      <find>rem_req</find>
-      <find>enable_coalescing</find>
       <find>enable_COAL</find>
       <find>ENABLE_COALESCING</find>
       <find>use_big_</find>
@@ -189,8 +185,11 @@
       <find>batch_size_per_worker</find>
       <find>print_st</find>
       <find>num_threads</find>
-      <find>nexus</find>
       <find>socket</find>
+      <find>worker_</find>
+      <find>worker_p</find>
+      <find>nexus</find>
+      <find>worker_port</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -204,10 +203,10 @@
         <option value="$PROJECT_DIR$/include/ccKVS/cache.h" />
         <option value="$PROJECT_DIR$/src/ccKVS/cache.c" />
         <option value="$PROJECT_DIR$/include/ccKVS/inline_util.h" />
-        <option value="$PROJECT_DIR$/include/ccKVS/util.h" />
         <option value="$PROJECT_DIR$/src/ccKVS/main.c" />
-        <option value="$PROJECT_DIR$/src/ccKVS/worker.c" />
+        <option value="$PROJECT_DIR$/include/ccKVS/util.h" />
         <option value="$PROJECT_DIR$/src/ccKVS/client-sc.c" />
+        <option value="$PROJECT_DIR$/src/ccKVS/worker.c" />
       </list>
     </option>
   </component>
@@ -300,12 +299,12 @@
       <workItem from="1551983070956" duration="8065000" />
       <workItem from="1552173337455" duration="5947000" />
       <workItem from="1552251746080" duration="14162000" />
-      <workItem from="1552348018148" duration="432000" />
+      <workItem from="1552348018148" duration="1174000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="28606000" />
+    <option name="totallyTimeSpent" value="29348000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="69" y="25" width="1851" height="1055" extended-state="6" />
@@ -315,7 +314,7 @@
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info active="true" anchor="bottom" id="Find" order="1" visible="true" weight="0.32972974" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32972974" />
       <window_info anchor="bottom" id="Run" order="2" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
@@ -411,27 +410,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/ccKVS/main.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="355">
-          <caret line="254" lean-forward="true" selection-start-line="254" selection-end-line="254" />
-          <folding>
-            <element signature="e#7157#7879#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/include/ccKVS/main.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="339">
           <caret line="24" column="33" selection-start-line="24" selection-start-column="8" selection-end-line="24" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/include/ccKVS/util.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="73">
-          <caret line="16" column="17" lean-forward="true" selection-start-line="16" selection-start-column="17" selection-end-line="16" selection-end-column="17" />
         </state>
       </provider>
     </entry>
@@ -442,17 +424,41 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/ccKVS/worker.c">
+    <entry file="file://$PROJECT_DIR$/src/eRPC/src/transport_impl/verbs_common.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="101" column="32" lean-forward="true" selection-start-line="101" selection-start-column="32" selection-end-line="101" selection-end-column="32" />
+        <state relative-caret-position="371">
+          <caret line="63" column="1" lean-forward="true" selection-start-line="63" selection-start-column="1" selection-end-line="63" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ccKVS/main.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="18">
+          <caret line="207" lean-forward="true" selection-start-line="207" selection-end-line="207" />
+          <folding>
+            <element signature="e#7157#7879#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/include/ccKVS/util.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="271">
+          <caret line="27" column="25" lean-forward="true" selection-start-line="27" selection-start-column="25" selection-end-line="27" selection-end-column="25" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/ccKVS/client-sc.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="405" lean-forward="true" selection-start-line="405" selection-end-line="405" />
+        <state relative-caret-position="18">
+          <caret line="403" lean-forward="true" selection-start-line="403" selection-end-line="403" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ccKVS/worker.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="98" lean-forward="true" selection-start-line="98" selection-end-line="98" />
         </state>
       </provider>
     </entry>

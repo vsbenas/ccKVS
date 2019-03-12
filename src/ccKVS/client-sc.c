@@ -402,12 +402,9 @@ void *run_client(void *arg)
     void *localid = malloc(sizeof(uint16_t));
     memcpy(localid, (void *) &local_client_id, sizeof(uint16_t));
 
-    int socket = local_client_id / (PHYSICAL_CORES_PER_SOCKET); // 0..9 go to socket 0, others go to 1
-
-    assert(socket < SOCKET_NUM);
 
     printf("Creating rpc for client %d using rpcid %d\n", local_client_id, WORKERS_PER_MACHINE + local_client_id);
-    crpc[local_client_id] = new erpc::Rpc<erpc::CTransport>(nexus[socket], localid, WORKERS_PER_MACHINE + local_client_id, sm_handler);
+    crpc[local_client_id] = new erpc::Rpc<erpc::CTransport>(nexus, localid, WORKERS_PER_MACHINE + local_client_id, sm_handler);
     crpc[local_client_id]->retry_connect_on_invalid_rpc_id = true;
     printf("Connecting to remote machines...\n");
 

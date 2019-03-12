@@ -205,21 +205,16 @@ int main(int argc, char *argv[])
 	}
 
 	string ip(ip_vector[machine_id]);
-	int numa_nodes = SOCKET_NUM;
 
-	for(int i=0;i<numa_nodes;i++) {
-
-
-		printf("Setting up eRPC Nexus at %s:%d (NUMA NODE %i)\n",ip_vector[machine_id],worker_port,i);
+	printf("Setting up eRPC Nexus at %s:%d (configured for 1 NUMA node)\n",ip_vector[machine_id],worker_port);
 
 
-		std::string server_uri = ip + ":" + std::to_string(worker_port) ;
+	std::string server_uri = ip + ":" + std::to_string(worker_port) ;
 
-		nexus[i] = new erpc::Nexus(server_uri, i, 0);
-		nexus[i]->register_req_func(kReqData, req_handler); // client->worker requests for data
-		nexus[i]->register_req_func(kReqCache, req_cache); // client->client messages for cache updates
+	nexus = new erpc::Nexus(server_uri, 0, 0);
+    nexus->register_req_func(kReqData, req_handler); // client->worker requests for data
+	nexus->register_req_func(kReqCache, req_cache); // client->client messages for cache updates
 
-	}
 
 
 
@@ -266,7 +261,6 @@ int main(int argc, char *argv[])
 
 	for(i = 0; i < CLIENTS_PER_MACHINE + WORKERS_PER_MACHINE + 1; i++)
 		pthread_join(thread_arr[i], NULL);
-	for(int i=0; i < SOCKET_NUM; i++)
-		delete nexus[i];
+	delete nexus;
 	return 0;
 }

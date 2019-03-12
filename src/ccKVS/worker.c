@@ -97,11 +97,8 @@ void *run_worker(void *arg) {
 	void *wrkrid = malloc(sizeof(int));
 	memcpy(wrkrid, (void *) &wrkr_lid, sizeof(int));
 
-	int socket = wrkr_lid / (PHYSICAL_CORES_PER_SOCKET); // 0..9 go to socket 0, others go to 1
 
-	assert(socket < SOCKET_NUM);
-
-	rpc[wrkr_lid] = new erpc::Rpc<erpc::CTransport>(nexus[socket], wrkrid, wrkr_lid, sm_handlerc);
+	rpc[wrkr_lid] = new erpc::Rpc<erpc::CTransport>(nexus, wrkrid, wrkr_lid, sm_handlerc);
 
 	uint8_t worker_sl = 0;
 	int remote_client_num = CLIENT_NUM - CLIENTS_PER_MACHINE;
