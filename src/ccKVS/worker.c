@@ -36,9 +36,10 @@ void req_handler(erpc::ReqHandle *req_handle, void *worker) {
 
     //struct mica_op **ops = malloc
 
+    ops_in_req[workerid][req_id] = 0;
 
     int offset = 0;
-    int wr_i = 0;
+
     while(offset < size) {
 
         ops = reinterpret_cast<struct mica_op*>(req->buf + offset);
@@ -46,16 +47,16 @@ void req_handler(erpc::ReqHandle *req_handle, void *worker) {
         int size_of_op = ops->opcode == CACHE_OP_PUT ? HERD_PUT_REQ_SIZE : HERD_GET_REQ_SIZE;
 
 		//mica_print_op(ops);
-        op_ptr_arr[workerid][wr_i] = ops;
+        op_ptr_arr[workerid][total_ops[workerid]] = ops;
 
 
         offset += size_of_op;
 
-        wr_i++;
+        total_ops[workerid] ++;
+        ops_in_req[workerid][req_id] ++;
+
     }
 
-    total_ops[workerid] += wr_i;
-    ops_in_req[workerid][req_id] = wr_i;
 
     assert(total_ops[workerid] < WORKER_MAX_BATCH);
 
