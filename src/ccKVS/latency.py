@@ -27,16 +27,16 @@ class LatencyParser:
         self.percentileLatency(array, 99)
 
     def printAllStats(self):
-        print "~~~~~~ Hot Write Stats ~~~~~~~"
-        self.printStats(self.hot_writes)
-        print "\n~~~~~~ Hot Read Stats ~~~~~~~~"
-        self.printStats(self.hot_reads)
+        #print "~~~~~~ Hot Write Stats ~~~~~~~"
+        #self.printStats(self.hot_writes)
+        #print "\n~~~~~~ Hot Read Stats ~~~~~~~~"
+        #self.printStats(self.hot_reads)
         print "\n~~~~~~ Remote Req Stats ~~~~~~"
         self.printStats(self.remote_reqs)
-        print "\n~~~~~~ Local Req Stats ~~~~~~~"
-        self.printStats(self.local_reqs)
-        print "\n~~~~~~ Overall Stats ~~~~~~~~~"
-        self.printStats(self.all_reqs)
+        #print "\n~~~~~~ Local Req Stats ~~~~~~~"
+        #self.printStats(self.local_reqs)
+        #print "\n~~~~~~ Overall Stats ~~~~~~~~~"
+        #self.printStats(self.all_reqs)
 
 
     def avgLatency(self, array):
