@@ -6,15 +6,28 @@ erpc::Rpc<erpc::CTransport> *rpc[WORKERS_PER_MACHINE];
 
 int reqs_per_loop[WORKERS_PER_MACHINE];
 
+struct mica_resp mica_resp_arr[WORKERS_PER_MACHINE][WORKER_MAX_BATCH];
+struct mica_op *op_ptr_arr[WORKERS_PER_MACHINE][WORKER_MAX_BATCH];
+int total_ops[WORKERS_PER_MACHINE];
+
+erpc::ReqHandle *handle[WORKERS_PER_MACHINE][MACHINE_NUM]; // each machine can only send one request to one worker
+int ops_in_req[WORKERS_PER_MACHINE][MACHINE_NUM];
+
+
 
 void req_handler(erpc::ReqHandle *req_handle, void *worker) {
     //auto &req = req_handle->pre_req_msgbuf;
 
     int workerid = *(static_cast<int*>(worker));
 
-	erpc::MsgBuffer &resp = req_handle->pre_resp_msgbuf;
+    int req_id = reqs_per_loop[workerid];
+
+    handle[workerid][req_id] = req_handle; // this is used for responses
+
 
     const erpc::MsgBuffer *req = req_handle->get_req_msgbuf();
+
+
     size_t size = req->get_data_size();
 
 
@@ -23,10 +36,6 @@ void req_handler(erpc::ReqHandle *req_handle, void *worker) {
 
     //struct mica_op **ops = malloc
 
-
-
-    struct mica_resp mica_resp_arr[WORKER_MAX_BATCH];
-    struct mica_op *op_ptr_arr[WORKER_MAX_BATCH];
 
     int offset = 0;
     int wr_i = 0;
@@ -37,31 +46,57 @@ void req_handler(erpc::ReqHandle *req_handle, void *worker) {
         int size_of_op = ops->opcode == CACHE_OP_PUT ? HERD_PUT_REQ_SIZE : HERD_GET_REQ_SIZE;
 
 		//mica_print_op(ops);
-        op_ptr_arr[wr_i] = ops;
+        op_ptr_arr[workerid][wr_i] = ops;
 
 
         offset += size_of_op;
 
         wr_i++;
     }
-    //printf("wr_i = %i\n",wr_i);
 
-    size = wr_i * sizeof(mica_resp);
+    total_ops[workerid] += wr_i;
+    ops_in_req[workerid][req_id] = wr_i;
+
+    assert(total_ops[workerid] < WORKER_MAX_BATCH);
+
+    reqs_per_loop[workerid]++;
+
+
+}
+void drain_batch(uint16_t workerid)
+{
+
 
     KVS_BATCH_OP(&kv, wr_i, op_ptr_arr, mica_resp_arr);
-    //printf("asking %d for %d\n",size,wr_i);
-    rpc[workerid]->resize_msg_buffer(&resp, size);
-    //if(workerid == 0) printf("%i ",wr_i);
 
-    memcpy((void *) resp.buf, (void *) req->buf, size);
+    int offset = 0;
+    for(int i=0;i < reqs_per_loop[workerid]; i++) {
 
-	w_stats[workerid].batches_per_worker++;
-	w_stats[workerid].remotes_per_worker += wr_i;
+        erpc::MsgBuffer &resp = handle[workerid][i]->pre_resp_msgbuf;
+        int num_ops = ops_in_req[workerid][i];
 
-    //req_handle->prealloc_used = true;
-	rpc[workerid]->enqueue_response(req_handle,&resp);
-    reqs_per_loop[workerid]++;
+        size_t size = num_ops * sizeof(mica_resp);
+
+        rpc[workerid]->resize_msg_buffer(&resp, size);
+
+        memcpy((void *) resp.buf, ((void *) mica_resp_arr[workerid]) + offset, size);
+
+        rpc[workerid]->enqueue_response(handle[workerid][i],&resp);
+
+        offset += size;
+
+
+    }
+
+
+    w_stats[workerid].batches_per_worker++;
+    w_stats[workerid].remotes_per_worker += total_ops[workerid];
+
+
+
+
 }
+
 
 int connections = 0;
 void sm_handlerc(int, erpc::SmEventType sm_event_type, erpc::SmErrType, void *)
@@ -196,8 +231,19 @@ void *run_worker(void *arg) {
 	while (1) {
 		/* Do a pass over requests from all clients */
         reqs_per_loop[wrkr_lid] = 0;
+        total_ops[wrkr_lid]=0;
+        mica_resp_arr[wrkr_lid] = {};
+        // collect all the requests
+        int oldreqs;
+        do {
+            oldreqs = reqs_per_loop[wrkr_lid];
+            rpc[wrkr_lid]->run_event_loop_once();
+        }
+        while(oldreqs != reqs_per_loop[wrkr_lid])
 
-        rpc[wrkr_lid]->run_event_loop_once();
+        // KVS-BATCH
+
+        drain_batch(wrkr_lid);
 
 
         if (reqs_per_loop[wrkr_lid] == 0) {
