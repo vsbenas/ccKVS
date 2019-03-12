@@ -67,7 +67,7 @@ void drain_batch(uint16_t workerid)
 {
 
 
-    KVS_BATCH_OP(&kv, wr_i, op_ptr_arr, mica_resp_arr);
+    KVS_BATCH_OP(&kv, total_ops[workerid], op_ptr_arr, mica_resp_arr);
 
     int offset = 0;
     for(int i=0;i < reqs_per_loop[workerid]; i++) {
@@ -79,7 +79,7 @@ void drain_batch(uint16_t workerid)
 
         rpc[workerid]->resize_msg_buffer(&resp, size);
 
-        memcpy((void *) resp.buf, ((void *) mica_resp_arr[workerid]) + offset, size);
+        memcpy((void *) resp.buf, ((char *) mica_resp_arr[workerid]) + offset, size);
 
         rpc[workerid]->enqueue_response(handle[workerid][i],&resp);
 
@@ -239,7 +239,7 @@ void *run_worker(void *arg) {
             oldreqs = reqs_per_loop[wrkr_lid];
             rpc[wrkr_lid]->run_event_loop_once();
         }
-        while(oldreqs != reqs_per_loop[wrkr_lid])
+        while(oldreqs != reqs_per_loop[wrkr_lid]);
 
         // KVS-BATCH
 
