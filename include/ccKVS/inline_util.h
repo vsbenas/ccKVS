@@ -769,7 +769,7 @@ static inline uint16_t handle_cold_requests(struct extended_cache_op* ops, struc
 											uint8_t* per_worker_outstanding, uint32_t* outstanding_rem_reqs, long long* remote_for_each_worker,
 											uint16_t* ws, int clt_gid, uint16_t local_client_id, uint16_t* stalled_ops_i, uint16_t local_worker_id,
 											int protocol, struct latency_flags* latency_info, struct timespec* start, struct local_latency* local_measure,
-											uint16_t* hottest_keys_pointers)
+											uint16_t* hottest_keys_pointers, ClientContext *c)
 {
 	uint16_t op_i = 0, i, j, wr_i = 0, rm_id, wn, worker_id;
 	uint32_t size_of_op;
@@ -870,7 +870,7 @@ static inline uint16_t handle_cold_requests(struct extended_cache_op* ops, struc
 
 		//add_erpc_request(rm_id, &ops[op_i], size_of_op, size_of_op);
 		//mica_print_op((struct mica_op*) &ops[op_i]);
-		add_erpc_request((int) rm_id, &ops[op_i], size_of_op, size_of_op,local_client_id);
+		add_erpc_request((int) rm_id, &ops[op_i], size_of_op, size_of_op,c);
 
 
 
@@ -1072,7 +1072,7 @@ static inline void perform_broadcasts_SC(struct extended_cache_op *ops, uint8_t 
 										 struct ibv_send_wr *coh_send_wr,
 										 struct mica_op *coh_buf, uint16_t *coh_buf_i, long long *br_tx,
 										 struct ibv_recv_wr *credit_recv_wr,
-										 uint16_t local_client_id, int protocol)
+										 uint16_t local_client_id, int protocol, ClientContext *c)
 {
 	uint16_t i, j, op_i = 0, br_i = 0, credit_recv_counter = 0;
 	struct ibv_wc signal_send_wc;
@@ -1096,7 +1096,7 @@ static inline void perform_broadcasts_SC(struct extended_cache_op *ops, uint8_t 
 
 		//batch_cache_op(ops + op_i, HERD_PUT_REQ_SIZE);
 
-		add_cache_op(ops + op_i, HERD_PUT_REQ_SIZE,local_client_id);
+		add_cache_op(ops + op_i, HERD_PUT_REQ_SIZE,c);
 
 
 		memcpy(coh_buf + (*coh_buf_i), ops + op_i, HERD_PUT_REQ_SIZE);

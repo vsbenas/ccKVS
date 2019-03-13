@@ -36,6 +36,46 @@ static constexpr uint8_t kReqCache = 3;
 
 static constexpr size_t kMsgSize = 16;
 
+/*
+ * Each thread has its own context, this speeds things up compared to global variables
+ */
+class ClientContext {
+public:
+	int clientid;
+
+	erpc::Rpc<erpc::CTransport> *crpc;
+
+// data ops buffers
+	erpc::MsgBuffer ereq[MACHINE_NUM];
+	erpc::MsgBuffer eresp[MACHINE_NUM];
+
+	int bufferused[MACHINE_NUM];
+
+// cache op buffers
+
+	erpc::MsgBuffer creq[MACHINE_NUM];
+	erpc::MsgBuffer cresp[MACHINE_NUM];
+
+	int cache_bufferused[MACHINE_NUM];
+
+
+	struct timespec gstart;
+	struct latency_flags glatency_info;
+
+	// cache ops
+	int cidx;
+	struct extended_cache_op* cbatch[CACHE_BATCH_SIZE];
+	int creq_length;
+
+	// data ops
+
+	int idx[MACHINE_NUM];
+	struct extended_cache_op* batch[MACHINE_NUM][WINDOW_SIZE];
+	int req_length[MACHINE_NUM][WINDOW_SIZE];
+
+
+};
+
 /* ---------------------------------------------------------------------------
 ------------------------------STATS --------------------------------------
 ---------------------------------------------------------------------------*/
@@ -168,7 +208,7 @@ int pin_client(int c_id);
 
 
 
-void add_erpc_request(int rm_id, struct extended_cache_op* ops, size_t req_length, size_t resp_length,uint16_t local_client_id);
-void add_cache_op(struct extended_cache_op* ops, size_t req_length,uint16_t local_client_id);
+void add_erpc_request(int rm_id, struct extended_cache_op* ops, size_t req_length, size_t resp_length,ClientContext *c);
+void add_cache_op(struct extended_cache_op* ops, size_t req_length,ClientContext *c);
 
 #endif /* CCKVS_UTILS_H */
