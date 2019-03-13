@@ -101,7 +101,7 @@ void req_handler(erpc::ReqHandle *req_handle, void *_context) {
 }
 void drain_batch(WorkerContext *c)
 {
-
+    int workerid = c->workerid;
 
     KVS_BATCH_OP(&kv, c->total_ops, c->op_ptr_arr, c->mica_resp_arr);
 
@@ -272,7 +272,7 @@ void *run_worker(void *arg) {
 		/* Do a pass over requests from all clients */
         context.reqs_per_loop = 0;
         context.total_ops = 0;
-        context.mica_resp_arr = {};
+        //context.mica_resp_arr = {}; this is overwritten
         // collect all the requests
         int oldreqs;
         do {
@@ -306,6 +306,6 @@ void *run_worker(void *arg) {
 		}
 
 	}
-	delete rpc[wrkr_lid];
+	delete context.rpc;
 	return NULL;
 }
