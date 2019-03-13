@@ -386,6 +386,8 @@ void *run_client(void *arg)
 
     ClientContext context;
 
+    context.clientid = local_client_id;
+
     ClientContext *c = &context;
 
 
