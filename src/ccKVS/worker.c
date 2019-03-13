@@ -65,12 +65,12 @@ void req_handler(erpc::ReqHandle *req_handle, void *worker) {
     }
     else {
 
-        erpc::MsgBuffer &resp = handle[workerid][i]->pre_resp_msgbuf;
+        erpc::MsgBuffer &resp = req_handle->pre_resp_msgbuf;
         KVS_BATCH_OP(&kv, total_ops[workerid], op_ptr_arr[workerid], mica_resp_arr[workerid]);
         size_t size = total_ops[workerid] * sizeof(mica_resp);
 
         rpc[workerid]->resize_msg_buffer(&resp, size);
-        
+
         memcpy((void *) resp.buf, (void *) mica_resp_arr[workerid], size);
 
         rpc[workerid]->enqueue_response(req_handle,&resp);
