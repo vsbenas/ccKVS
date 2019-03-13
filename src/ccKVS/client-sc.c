@@ -549,7 +549,7 @@ void *run_client(void *arg)
                                     rem_send_sgl, wc, remote_tot_tx, worker_qp_i,
                                     per_worker_outstanding, &outstanding_rem_reqs, remote_for_each_worker,
                                     ws, clt_gid, local_client_id, NULL, local_worker_id, protocol,
-                                    &(c->glatency_info), &(c->gstart), &local_measure, hottest_keys_pointers); // IMPORTANT
+                                    &(c->glatency_info), &(c->gstart), &local_measure, hottest_keys_pointers, c); // IMPORTANT
 
 
 
