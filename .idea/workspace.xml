@@ -10,8 +10,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dc75651b-b85e-4dea-b795-da7504daa5a1" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/include/ccKVS/inline_util.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/ccKVS/inline_util.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/include/ccKVS/util.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/ccKVS/util.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ccKVS/client-sc.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/ccKVS/client-sc.c" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -45,14 +43,14 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="c" value="3601" />
+          <entry key="c" value="3611" />
           <entry key="dummy" value="620" />
           <entry key="h" value="190" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="ObjectiveC" value="3791" />
+          <entry key="ObjectiveC" value="3801" />
           <entry key="PLAIN_TEXT" value="620" />
         </counts>
       </usages-collector>
@@ -63,8 +61,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/ccKVS/client-sc.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="108">
-              <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
+            <state relative-caret-position="187">
+              <caret line="514" column="70" lean-forward="true" selection-start-line="514" selection-start-column="70" selection-end-line="514" selection-end-column="70" />
             </state>
           </provider>
         </entry>
@@ -154,7 +152,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>response</find>
       <find>receive_response</find>
       <find>handle_cold</find>
       <find>max_coales</find>
@@ -184,6 +181,7 @@
       <find>add_cache_op</find>
       <find>add_erpc</find>
       <find>perform</find>
+      <find>local_cl</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -200,8 +198,8 @@
         <option value="$PROJECT_DIR$/include/ccKVS/main.h" />
         <option value="$PROJECT_DIR$/src/ccKVS/worker.c" />
         <option value="$PROJECT_DIR$/include/ccKVS/inline_util.h" />
-        <option value="$PROJECT_DIR$/src/ccKVS/client-sc.c" />
         <option value="$PROJECT_DIR$/include/ccKVS/util.h" />
+        <option value="$PROJECT_DIR$/src/ccKVS/client-sc.c" />
       </list>
     </option>
   </component>
@@ -297,12 +295,12 @@
       <workItem from="1552251746080" duration="14162000" />
       <workItem from="1552348018148" duration="2770000" />
       <workItem from="1552418868825" duration="2270000" />
-      <workItem from="1552433304621" duration="8095000" />
+      <workItem from="1552433304621" duration="8167000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="41309000" />
+    <option name="totallyTimeSpent" value="41381000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="69" y="25" width="1851" height="1055" extended-state="6" />
@@ -483,8 +481,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/ccKVS/client-sc.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="108">
-          <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
+        <state relative-caret-position="187">
+          <caret line="514" column="70" lean-forward="true" selection-start-line="514" selection-start-column="70" selection-end-line="514" selection-end-column="70" />
         </state>
       </provider>
     </entry>

@@ -420,7 +420,7 @@ void *run_client(void *arg)
             sessions[i] = session_num;
 
             cyan_printf("Trying to connect...");
-            while (!c->crpc[local_client_id]->is_connected(session_num))
+            while (!c->crpc->is_connected(session_num))
                 c->crpc->run_event_loop_once();
             cyan_printf("Connected data transfer! Session id: %d\n",session_num);
 
@@ -511,7 +511,7 @@ void *run_client(void *arg)
 
 
         trace_iter = batch_from_trace_to_cache(trace_iter, local_client_id, trace, ops, resp,
-                                               key_homes, 0, next_op_i, &glatency_info[local_client_id], &gstart[local_client_id],
+                                               key_homes, 0, next_op_i, &(c->glatency_info), &(c->gstart),
                                                hottest_keys_pointers);
 
 
