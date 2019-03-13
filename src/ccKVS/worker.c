@@ -58,10 +58,26 @@ void req_handler(erpc::ReqHandle *req_handle, void *worker) {
     }
 
 
-    assert(total_ops[workerid] < WORKER_MAX_BATCH);
+    if(ENABLE_KVS_BATCHING == 1) {
+        assert(total_ops[workerid] < WORKER_MAX_BATCH);
 
-    reqs_per_loop[workerid]++;
+        reqs_per_loop[workerid]++;
+    }
+    else {
 
+        erpc::MsgBuffer &resp = handle[workerid][i]->pre_resp_msgbuf;
+        KVS_BATCH_OP(&kv, total_ops[workerid], op_ptr_arr[workerid], mica_resp_arr[workerid]);
+        size_t size = total_ops[workerid] * sizeof(mica_resp);
+
+        rpc[workerid]->resize_msg_buffer(&resp, size);
+        
+        memcpy((void *) resp.buf, (void *) mica_resp_arr[workerid], size);
+
+        rpc[workerid]->enqueue_response(req_handle,&resp);
+
+
+        total_ops[workerid] = 0;
+    }
 
 }
 void drain_batch(uint16_t workerid)
@@ -247,8 +263,8 @@ void *run_worker(void *arg) {
             continue; // no request was found, start over
         }
         // KVS-BATCH
-
-        drain_batch(wrkr_lid);
+        if(ENABLE_KVS_BATCHING == 1)
+            drain_batch(wrkr_lid);
 
 
         //sleep(1);

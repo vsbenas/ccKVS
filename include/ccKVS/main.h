@@ -31,7 +31,7 @@ using namespace std;
 
 #define WORKERS_PER_MACHINE 20
 #define CLIENTS_PER_MACHINE 20
-#define MACHINE_NUM 2
+#define MACHINE_NUM 4
 
 #define CACHE_SOCKET 0 //(WORKERS_PER_MACHINE < 8 ? 0 : 1 )// socket where the cache is bind
 
@@ -116,7 +116,9 @@ using namespace std;
 #define MAXIMUM_INLINE_SIZE 188
 
 //-----WORKER-------
-#define WORKER_MAX_BATCH (WINDOW_SIZE-1)
+#define ENABLE_KVS_BATCHING 0
+
+#define WORKER_MAX_BATCH (KVS_BATCH * MACHINE_NUM)
 #define ENABLE_MINIMUM_WORKER_BATCHING 0
 #define WORKER_MINIMUM_BATCH 16 // DOES NOT WORK
 
