@@ -76,7 +76,12 @@ void req_handler(erpc::ReqHandle *req_handle, void *worker) {
         rpc[workerid]->enqueue_response(req_handle,&resp);
 
 
+
+        w_stats[workerid].batches_per_worker++;
+        w_stats[workerid].remotes_per_worker += total_ops[workerid];
+
         total_ops[workerid] = 0;
+
     }
 
 }
