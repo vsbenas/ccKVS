@@ -170,7 +170,7 @@ void receive_response(void *_context, void *tag) {
 
 
 
-    if ((MEASURE_LATENCY == 1) && local_client_id == 0 && machine_id == 0)
+    if ((MEASURE_LATENCY == 1) && c->glatency_info.measured_req_flag == REMOTE_REQ && local_client_id == 0 && machine_id == 0)
     {
         struct timespec end;
         clock_gettime(CLOCK_MONOTONIC, &end);
@@ -468,19 +468,8 @@ void *run_client(void *arg)
     ---------------------------------------------------------------------------*/
     while (1) {
 
-        c->crpc->run_event_loop_once();
-        //continue;
-        int _continue = 0;
-        for(int rm_id = 0; rm_id < MACHINE_NUM; rm_id ++) {
-            if(c->bufferused[rm_id] == 1) {
-                _continue=1;
-            }
-            if(c->cache_bufferused[rm_id] == 1) {
-                _continue=1;
-            }
-        }
-        if(_continue)
-            continue;
+        /* Do next batch while waiting for responses! */
+
 
         if(previous_wr_i > 0) {
             outstanding_rem_reqs -= previous_wr_i;
@@ -575,6 +564,26 @@ void *run_client(void *arg)
         else if (ENABLE_STAT_COUNTING == 1) {
             c_stats[local_client_id].wasted_loops++;
         }
+
+        // wait for responses from old batches, before sending new ones
+        if(previous_wr_i > 0) {
+
+            int _continue = 0;
+            do {
+                c->crpc->run_event_loop_once();
+                _continue = 0;
+                for (int rm_id = 0; rm_id < MACHINE_NUM; rm_id++) {
+                    if (c->bufferused[rm_id] == 1) {
+                        _continue = 1;
+                    }
+                    if (c->cache_bufferused[rm_id] == 1) {
+                        _continue = 1;
+                    }
+                }
+            } while (_continue);
+
+        }
+
 
         broadcast_cache_ops(c,cache_sessions); // cache ops
         send_requests(c,sessions); // data ops

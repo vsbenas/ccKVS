@@ -691,7 +691,8 @@ static inline enum control_flow_directive handle_lack_of_credits_for_remotes(str
 {
 	uint16_t i;
 	per_worker_outstanding[(*worker_id)]--;
-	if ((outstanding_rem_reqs + wr_i) >= MAX_OUTSTANDING_REQS) { //   the client has no credits at all
+	if (wr_i >= KVS_BATCH * MACHINE_NUM) { // all batches are full
+	    // (outstanding_rem_reqs + wr_i) >= MAX_OUTSTANDING_REQS) { //   the client has no credits at all
 		rem_send_wr[wr_i - 1].next = NULL;
 		copy_op_to_next_op(ops, next_ops, resp, next_resp, key_homes, next_key_homes, (*op_i), next_op_i, latency_info, NULL);
 		(*op_i)++;
@@ -846,7 +847,7 @@ static inline uint16_t handle_cold_requests(struct extended_cache_op* ops, struc
 
 		per_worker_outstanding[worker_id]++;
 		if (per_worker_outstanding[worker_id] > KVS_BATCH ) {
-		    break;
+		    //break;
 			//
 			// 		printf("outstanding %d for worker %d \n", per_worker_outstanding[worker_id], worker_id);
 

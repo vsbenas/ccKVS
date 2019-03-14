@@ -49,6 +49,7 @@ void req_handler(erpc::ReqHandle *req_handle, void *_context) {
 
     int wr_i = c->total_ops;
 
+
     while(offset < size) {
 
         ops = reinterpret_cast<struct mica_op*>(req->buf + offset);

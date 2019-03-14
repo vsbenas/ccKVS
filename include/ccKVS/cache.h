@@ -179,7 +179,7 @@ static inline void start_measurement(struct timespec* start, struct latency_flag
 	if (ENABLE_ASSERTIONS) assert(ops[op_i].key.meta.state == 0);
 	if ((latency_info->measured_req_flag) == NO_REQ) {
 		if (c_stats[local_client_id].batches_per_client > K_32 &&
-			op_i == ((((latency_count.total_measurements % CACHE_BATCH_SIZE) + next_op_i) % CACHE_BATCH_SIZE) + next_op_i) && // the purpose of that is that the latency also depends on the op position i the ops buffer
+			//op_i == ((((latency_count.total_measurements % CACHE_BATCH_SIZE) + next_op_i) % CACHE_BATCH_SIZE) + next_op_i) && // the purpose of that is that the latency also depends on the op position i the ops buffer
 			local_client_id == 0 && machine_id == 0) {
 //      printf("tag a key for latency measurement \n");
 			if (IS_LOCAL(opcode)) latency_info->measured_req_flag = LOCAL_REQ;
@@ -199,7 +199,7 @@ static inline void start_measurement(struct timespec* start, struct latency_flag
 //		green_printf("Measuring a req %llu, opcode %d, flag %d op_i %d \n",
 //								 c_stats[local_client_id].batches_per_client, opcode, latency_info->measured_req_flag, latency_info->last_measured_op_i);
 
-			//clock_gettime(CLOCK_MONOTONIC, start);
+			clock_gettime(CLOCK_MONOTONIC, start);
 
 			if (ENABLE_ASSERTIONS) assert(latency_info->measured_req_flag != NO_REQ);
 			if ((latency_info->measured_req_flag) == REMOTE_REQ) {
