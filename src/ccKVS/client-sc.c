@@ -68,6 +68,7 @@ void cache_response(void *_context, void* tag) {
     c->crpc->free_msg_buffer(c->creq[rm_id]);
     c->crpc->free_msg_buffer(c->cresp[rm_id]);
     c->cache_bufferused[rm_id] = 0;
+    c->reqs_in_transit--;
     //cache_bufferused[local_client_id][rm_id]=0;
 
 
@@ -135,6 +136,8 @@ void broadcast_cache_ops(ClientContext* c, int* cache_sessions) {
 
             c->crpc->enqueue_request(session, kReqCache, &(c->creq[rm_id]), &(c->cresp[rm_id]), cache_response, rmid_tag);
 
+            c->reqs_in_transit++;
+
             //crpc[clientid]->free_msg_buffer(creq[clientid][rm_id]);
             //crpc[clientid]->free_msg_buffer(cresp[clientid][rm_id]);
             //cache_bufferused[clientid][rm_id]=0;
@@ -167,7 +170,7 @@ void receive_response(void *_context, void *tag) {
     c->crpc->free_msg_buffer(c->ereq[rm_id]);
     c->crpc->free_msg_buffer(c->eresp[rm_id]);
     c->bufferused[rm_id]=0;
-
+    c->reqs_in_transit--;
 
 
     if ((MEASURE_LATENCY == 1) && c->glatency_info.measured_req_flag == REMOTE_REQ && local_client_id == 0 && machine_id == 0)
@@ -260,6 +263,7 @@ void send_requests(ClientContext* c, int *sessions) {
             memcpy(rmid_tag, (void *) &rm_id, sizeof(int));
 
             c->crpc->enqueue_request(session, kReqData, &(c->ereq[rm_id]), &(c->eresp[rm_id]), receive_response, rmid_tag);
+            c->reqs_in_transit++;
             reqs++;
         }
     }
@@ -450,6 +454,8 @@ void *run_client(void *arg)
 
     }
 
+    c->reqs_in_transit = 0;
+
 
     if (local_client_id == 0) {
         if (spawn_stats_thread() != 0)
@@ -474,27 +480,11 @@ void *run_client(void *arg)
         if(previous_wr_i > 0) {
             outstanding_rem_reqs -= previous_wr_i;
         }
-        /*if (ENABLE_ASSERTIONS) assert(prev_rem_req_i <= MAX_REMOTE_RECV_WCS);
-           if ((MEASURE_LATENCY == 1) && (((&latency_info)->measured_req_flag) == REMOTE_REQ)) {
-               report_remote_latency(&latency_info, prev_rem_req_i, wc, &start);
-           }
-       }*/
-
-
 
         // Swap the op buffers to facilitate correct ordering
         swap_ops(&ops, &next_ops, &third_ops,
                  &resp, &next_resp, &third_resp,
                  &key_homes, &next_key_homes, &third_key_homes);
-        if (credit_debug_cnt > M_1) {
-            red_printf("Client %d misses credits \n", clt_gid);
-            // exit(0);
-            credit_debug_cnt = 0;
-        }
-        if((MEASURE_LATENCY == 1) && local_client_id == 0 && machine_id == 0)
-        {
-            clock_gettime(CLOCK_MONOTONIC, &(c->gstart));
-        }
 
         /* ---------------------------------------------------------------------------
         ------------------------------PROBE THE CACHE--------------------------------------
@@ -527,7 +517,7 @@ void *run_client(void *arg)
         empty_req_percentage = c_stats[local_client_id].empty_reqs_per_trace;
 
 
-        if (ENABLE_MULTI_BATCHES == 1) {
+        if (ENABLE_MULTI_BATCHES == 1) { // deprecated
             find_responses_to_enable_multi_batching (empty_req_percentage, cb, wc,
                                                      per_worker_outstanding, &outstanding_rem_reqs, local_client_id);
         }
@@ -552,10 +542,7 @@ void *run_client(void *arg)
 
 
         if(wr_i > 0) { // from poll_and_send_remotes
-            /*if (MEASURE_LATENCY == 1) {
-                clock_gettime(CLOCK_MONOTONIC, &gstart[local_client_id]);
-                glatency_info[local_client_id].measured_req_flag = REMOTE_REQ;
-            }*/
+
             c_stats[local_client_id].remote_messages_per_client += wr_i;
 
             c_stats[local_client_id].batches_per_client++;
@@ -569,20 +556,17 @@ void *run_client(void *arg)
         if(previous_wr_i > 0) {
 
             uint32_t debug_cnt = 0;
-            int _continue = 0;
-            do {
-                c->crpc->run_event_loop_once();
-                _continue = 0;
-                for (int rm_id = 0; rm_id < MACHINE_NUM; rm_id++) {
-                    if (c->bufferused[rm_id] == 1) {
-                        _continue = 1;
-                    }
-                    if (c->cache_bufferused[rm_id] == 1) {
-                        _continue = 1;
-                    }
-                }
+            while(c->reqs_in_transit > 0) {
+
+                c->crpc->run_event_loop_once(); // wait for responses (and answer new requests)
+
                 debug_cnt ++;
-            } while (_continue);
+                if (debug_cnt > M_256) {
+                    printf("Client %d is stuck waiting for %d completions \n",local_client_id, c->reqs_in_transit );
+                    debug_cnt = 0;
+                }
+
+            }
             c_stats[local_client_id].stalled_time_per_client += debug_cnt;
         }
 
@@ -590,7 +574,7 @@ void *run_client(void *arg)
         broadcast_cache_ops(c,cache_sessions); // cache ops
         send_requests(c,sessions); // data ops
 
-        c->crpc->run_event_loop_once(); // burst TX
+        c->crpc->run_event_loop_once(); // burst TX (and answer new requests)
 
     }
     return NULL;

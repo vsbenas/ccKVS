@@ -73,6 +73,8 @@ public:
 	struct extended_cache_op* batch[MACHINE_NUM][WINDOW_SIZE];
 	int req_length[MACHINE_NUM][WINDOW_SIZE];
 
+	int reqs_in_transit;
+
 
 };
 
