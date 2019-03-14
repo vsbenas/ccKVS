@@ -22,33 +22,21 @@ public:
 };
 
 void req_handler(erpc::ReqHandle *req_handle, void *_context) {
-    //auto &req = req_handle->pre_req_msgbuf;
 
     auto *c = static_cast<WorkerContext *>(_context);
-
     int workerid = c->workerid;
-
     int req_id = c->reqs_per_loop;
-
     c->handle[req_id] = req_handle; // this is used for responses
-
 
     const erpc::MsgBuffer *req = req_handle->get_req_msgbuf();
 
-
     size_t size = req->get_data_size();
 
-
-	//struct extended_cache_op* ops = reinterpret_cast<struct extended_cache_op*>(req->buf);
     struct mica_op *ops = reinterpret_cast<struct mica_op*>(req->buf);
 
-    //struct mica_op **ops = malloc
     c->ops_in_req[req_id] = 0;
 
     int offset = 0;
-
-    int wr_i = c->total_ops;
-
 
     while(offset < size) {
 
@@ -70,37 +58,28 @@ void req_handler(erpc::ReqHandle *req_handle, void *_context) {
     }
     c->reqs_per_loop++;
 
-    //reqs_per_loop[workerid]++;
+#if ENABLE_KVS_BATCHING == 1
+	assert(c->total_ops <= WORKER_MAX_BATCH);
+#else
+	erpc::MsgBuffer &resp = req_handle->pre_resp_msgbuf;
 
-    if(ENABLE_KVS_BATCHING == 1) {
-        assert(c->total_ops < WORKER_MAX_BATCH);
-    }
-    else {
+	KVS_BATCH_OP(&kv, c->total_ops, c->op_ptr_arr, c->mica_resp_arr); // total_ops[workerid], op_ptr_arr[workerid], mica_resp_arr[workerid]);
 
-        erpc::MsgBuffer &resp = req_handle->pre_resp_msgbuf;
+	size_t size = c->total_ops * sizeof(mica_resp);
 
-        KVS_BATCH_OP(&kv, c->total_ops, c->op_ptr_arr, c->mica_resp_arr); // total_ops[workerid], op_ptr_arr[workerid], mica_resp_arr[workerid]);
+	c->rpc->resize_msg_buffer(&resp, size);
+	//rpc[workerid]->resize_msg_buffer(&resp, size);
 
-        size_t size = c->total_ops * sizeof(mica_resp);
+	memcpy((void *) resp.buf, (void *) c->mica_resp_arr, size);
 
-        c->rpc->resize_msg_buffer(&resp, size);
-        //rpc[workerid]->resize_msg_buffer(&resp, size);
+	c->rpc->enqueue_response(req_handle,&resp);
 
-        memcpy((void *) resp.buf, (void *) c->mica_resp_arr, size);
-
-        c->rpc->enqueue_response(req_handle,&resp);
-
-
-
-        w_stats[workerid].batches_per_worker++;
-        w_stats[workerid].remotes_per_worker += c->total_ops;
-
-        c->total_ops = 0;
-
-    }
+	w_stats[workerid].batches_per_worker++;
+	w_stats[workerid].remotes_per_worker += c->total_ops;
+#endif
 
 }
-void drain_batch(WorkerContext *c)
+inline void drain_batch(WorkerContext *c)
 {
     int workerid = c->workerid;
 
@@ -280,18 +259,16 @@ void *run_worker(void *arg) {
             oldreqs = context.reqs_per_loop;
             context.rpc->run_event_loop_once();
         }
-        while(oldreqs != context.reqs_per_loop);
-
+#if ENABLE_KVS_BATCHING == 1
+        while(oldreqs != context.reqs_per_loop); // collect all requests
+        drain_batch(&context); // KVS BATCH
+#else
+		while(false); // execute only once
+#endif
         if (context.reqs_per_loop == 0) {
             w_stats[wrkr_lid].empty_polls_per_worker++;
             continue; // no request was found, start over
         }
-        // KVS-BATCH
-        if(ENABLE_KVS_BATCHING == 1)
-            drain_batch(&context);
-
-
-        //sleep(1);
 
 		wr_i = 0;
 
@@ -299,7 +276,7 @@ void *run_worker(void *arg) {
 		------------------------------ LOCAL REQUESTS--------------------------------
 		---------------------------------------------------------------------------*/
 		// Before polling for remote reqs, poll for all the local, such that you give time for the remote reqs to gather up
-		if (DISABLE_LOCALS != 1) {
+		if (DISABLE_LOCALS != 1) { // DEPRECATED
 			if (ENABLE_LOCAL_WORKERS && wrkr_lid >= ACTIVE_WORKERS_PER_MACHINE || !ENABLE_LOCAL_WORKERS) {
 				serve_local_reqs(wrkr_lid, &kv, local_op_ptr_arr, local_responses);
 				if (ENABLE_LOCAL_WORKERS) continue;

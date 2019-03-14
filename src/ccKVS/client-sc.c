@@ -69,8 +69,6 @@ void cache_response(void *_context, void* tag) {
     c->crpc->free_msg_buffer(c->cresp[rm_id]);
     c->cache_bufferused[rm_id] = 0;
     c->reqs_in_transit--;
-    //cache_bufferused[local_client_id][rm_id]=0;
-
 
 
     free(tag);
@@ -82,8 +80,7 @@ void cache_response(void *_context, void* tag) {
 
 
 
-void add_cache_op(struct extended_cache_op* ops, size_t request_length, ClientContext* c) {
-
+inline void add_cache_op(struct extended_cache_op* ops, size_t request_length, ClientContext* c) {
 
     assert(c->cidx < CACHE_BATCH_SIZE);
 
@@ -98,38 +95,41 @@ void add_cache_op(struct extended_cache_op* ops, size_t request_length, ClientCo
 
 
 
-void broadcast_cache_ops(ClientContext* c, int* cache_sessions) {
+inline void broadcast_cache_ops(ClientContext* c, int* cache_sessions) {
 
-    //cyan_printf("Broadcasting cache ops!\n");
     int clientid = c->clientid;
 
+    if(c->cidx == 0) // no cache operations found
+        return;
+    // construct packet
+    int total_length = c->cidx * c->creq_length;
+    void *buffer = malloc(total_length);
+    int offset = 0;
+
+    for(int msg = 0; msg < c->cidx; msg++) {
+
+        memcpy(buffer + offset, c->cbatch[msg], c->creq_length);
+
+        offset += c->creq_length;
+
+    }
+
+    // send the packet to all machines
     for (int rm_id = 0; rm_id < MACHINE_NUM; rm_id++) {
 
         if (rm_id != machine_id) {
 
-            if(c->cache_bufferused[rm_id] == 1) {
-                printf("Error! Buffer %i in use.\n",rm_id);
-                return;
-            }
-
-            if(c->cidx == 0)
-                continue;
+            assert(c->cache_bufferused[rm_id] == 0);
 
             int session = cache_sessions[rm_id];
-            int total_length = c->cidx * c->creq_length;
-
-            //assert(total_length < 1000);
-
-
 
             c->creq[rm_id] = c->crpc->alloc_msg_buffer_or_die(total_length);
+
             c->cresp[rm_id] = c->crpc->alloc_msg_buffer_or_die(total_length);
 
-            memcpy(c->creq[rm_id].buf, c->cbatch, total_length);
-
+            memcpy(c->creq[rm_id].buf, buffer, total_length);
 
             c->cache_bufferused[rm_id] = 1;
-            //cache_bufferused[clientid][rm_id]=1;
 
             void *rmid_tag = malloc(sizeof(int));
             memcpy(rmid_tag, (void *) &rm_id, sizeof(int));
@@ -137,20 +137,10 @@ void broadcast_cache_ops(ClientContext* c, int* cache_sessions) {
             c->crpc->enqueue_request(session, kReqCache, &(c->creq[rm_id]), &(c->cresp[rm_id]), cache_response, rmid_tag);
 
             c->reqs_in_transit++;
-
-            //crpc[clientid]->free_msg_buffer(creq[clientid][rm_id]);
-            //crpc[clientid]->free_msg_buffer(cresp[clientid][rm_id]);
-            //cache_bufferused[clientid][rm_id]=0;
-
-
-
-            //free(rmid_tag);
-
         }
 
     }
     c->cidx=0;
-    //cidx = 0;
 
 }
 
@@ -158,7 +148,6 @@ void broadcast_cache_ops(ClientContext* c, int* cache_sessions) {
 
 
 void receive_response(void *_context, void *tag) {
-    //printf("response!\n");
 
     auto *c = static_cast<ClientContext *>(_context);
 
@@ -195,50 +184,42 @@ void sm_handler(int, erpc::SmEventType, erpc::SmErrType, void *) {}
 
 
 
-void add_erpc_request(int rm_id, struct extended_cache_op* ops, size_t request_length, size_t resp_length, ClientContext *c) {
+inline void add_erpc_request(int rm_id, struct extended_cache_op* ops, size_t request_length, size_t resp_length, ClientContext *c) {
 
     int id = c->idx[rm_id];
     assert(id < WINDOW_SIZE);
 
     c->batch[rm_id][id] = ops;
 
-
     c->req_length[rm_id][id] = request_length;
-
 
     c->idx[rm_id]++;
 
 }
 
-void send_requests(ClientContext* c, int *sessions) {
+inline void send_requests(ClientContext* c, int *sessions) {
 
     int clientid = c->clientid;
-    int reqs = 0;
     for(int rm_id=0;rm_id<MACHINE_NUM;rm_id++) {
-
 
         if( rm_id != machine_id && c->idx[rm_id] > 0) {
 
-
             int session = sessions[rm_id];
             // fill ereq
-            if(c->bufferused[rm_id] == 1) {
-                printf("Error! Buffer %i in use.\n",rm_id);
-                return;
-            }
+            assert(c->bufferused[rm_id] == 0);
+
             int total_length = 0;
 
-           // printf("idx %i",idx[rm_id]);
             for(int msg = 0; msg < c->idx[rm_id]; msg++) {
 
                 total_length += c->req_length[rm_id][msg];
 
             }
-            //assert(total_length < 1000); // for some reason ibv_post_send throws EINVAL
-
 
             c->ereq[rm_id] = c->crpc->alloc_msg_buffer_or_die(total_length);
+
             int resp_length = c->idx[rm_id] * sizeof(mica_resp);
+
             c->eresp[rm_id] = c->crpc->alloc_msg_buffer_or_die(resp_length);
 
             int offset = 0;
@@ -251,10 +232,8 @@ void send_requests(ClientContext* c, int *sessions) {
 
                 offset += c->req_length[rm_id][msg];
                 //mica_print_op((struct mica_op *) batch[rm_id][msg]);
-                //printf("(%i,%i,%s (%i)),",batch[rm_id][msg]->opcode,batch[rm_id][msg]->val_len,batch[rm_id][msg]->value,req_length[rm_id][msg]);
             }
-	    //if(clientid == 0)
-		//    cyan_printf("%i ",idx[clientid][rm_id]);
+
             c->bufferused[rm_id]=1;
 
             c->idx[rm_id]=0;
@@ -264,10 +243,9 @@ void send_requests(ClientContext* c, int *sessions) {
 
             c->crpc->enqueue_request(session, kReqData, &(c->ereq[rm_id]), &(c->eresp[rm_id]), receive_response, rmid_tag);
             c->reqs_in_transit++;
-            reqs++;
         }
     }
-    //printf("%d reqs sent from client\n",reqs);
+
 
 }
 
@@ -399,9 +377,6 @@ void *run_client(void *arg)
     --------------CONNECT WITH WORKERS AND CLIENTS-----------------------
     --------------------------------------------------------- */
 
-    /*void *localid = malloc(sizeof(uint16_t));
-    memcpy(localid, (void *) &local_client_id, sizeof(uint16_t));
-    */
 
     printf("Creating rpc for client %d using rpcid %d\n", local_client_id, WORKERS_PER_MACHINE + local_client_id);
     c->crpc = new erpc::Rpc<erpc::CTransport>(nexus, (void *) c, WORKERS_PER_MACHINE + local_client_id, sm_handler);
