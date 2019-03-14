@@ -92,7 +92,7 @@ inline void broadcast_cache_ops(ClientContext* c, int* cache_sessions) {
         return;
     // construct packet
     int total_length = c->cidx * c->creq_length;
-    void *buffer = malloc(total_length);
+    uint8_t *buffer = (uint8_t*) malloc(total_length);
     int offset = 0;
 
     for(int msg = 0; msg < c->cidx; msg++) {

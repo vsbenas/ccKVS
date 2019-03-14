@@ -60,22 +60,6 @@ void req_handler(erpc::ReqHandle *req_handle, void *_context) {
 
 #if ENABLE_KVS_BATCHING == 1
 	assert(c->total_ops <= WORKER_MAX_BATCH);
-#else
-	erpc::MsgBuffer &resp = req_handle->pre_resp_msgbuf;
-
-	KVS_BATCH_OP(&kv, c->total_ops, c->op_ptr_arr, c->mica_resp_arr); // total_ops[workerid], op_ptr_arr[workerid], mica_resp_arr[workerid]);
-
-	size_t size = c->total_ops * sizeof(mica_resp);
-
-	c->rpc->resize_msg_buffer(&resp, size);
-	//rpc[workerid]->resize_msg_buffer(&resp, size);
-
-	memcpy((void *) resp.buf, (void *) c->mica_resp_arr, size);
-
-	c->rpc->enqueue_response(req_handle,&resp);
-
-	w_stats[workerid].batches_per_worker++;
-	w_stats[workerid].remotes_per_worker += c->total_ops;
 #endif
 
 }
@@ -101,15 +85,10 @@ inline void drain_batch(WorkerContext *c)
 
         offset += size;
 
-
     }
-
 
     w_stats[workerid].batches_per_worker++;
     w_stats[workerid].remotes_per_worker += c->total_ops;
-
-
-
 
 }
 
@@ -261,13 +240,15 @@ void *run_worker(void *arg) {
         }
 #if ENABLE_KVS_BATCHING == 1
         while(oldreqs != context.reqs_per_loop); // collect all requests
-        drain_batch(&context); // KVS BATCH
 #else
 		while(false); // execute only once
 #endif
         if (context.reqs_per_loop == 0) {
             w_stats[wrkr_lid].empty_polls_per_worker++;
             continue; // no request was found, start over
+        }
+        else {
+			drain_batch(&context); // KVS BATCH
         }
 
 		wr_i = 0;
