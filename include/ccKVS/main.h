@@ -178,7 +178,7 @@ using namespace std;
 #define EMULATING_CREW 1 // emulate crew, to facilitate running the CREW baseline
 #define RANDOM_MACHINE 0 // pick a rnadom machine
 #define DISABLE_CACHE 0 // Run Baseline
-#define LOAD_BALANCE 1 // Use a uniform access pattern
+#define LOAD_BALANCE 0 // Use a uniform access pattern
 #define EMULATE_SWITCH_KV 0 // Does nothing..
 #define SWITCH_KV_NODE 0 // which machine is the cache
 
