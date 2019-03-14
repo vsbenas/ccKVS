@@ -7,6 +7,35 @@
 #include <unistd.h>
 #include <assert.h>
 
+/* erpc functions */
+
+inline void add_erpc_request(int rm_id, struct extended_cache_op* ops, size_t request_length, size_t resp_length, ClientContext *c) {
+
+	int id = c->idx[rm_id];
+	assert(id < WINDOW_SIZE);
+
+	c->batch[rm_id][id] = ops;
+
+	c->req_length[rm_id][id] = request_length;
+
+	c->idx[rm_id]++;
+
+}
+
+inline void add_cache_op(struct extended_cache_op* ops, size_t request_length, ClientContext* c) {
+
+	assert(c->cidx < CACHE_BATCH_SIZE);
+
+	c->creq_length = request_length;
+
+	c->cbatch[c->cidx]=ops;
+
+	c->cidx++;
+
+	c_stats[c->clientid].updates_per_client++;
+}
+
+
 /* ---------------------------------------------------------------------------
 ------------------------------UTILITY --------------------------------------
 ---------------------------------------------------------------------------*/

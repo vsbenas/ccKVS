@@ -209,8 +209,4 @@ int pin_worker(int w_id);
 int pin_client(int c_id);
 
 
-
-inline void add_erpc_request(int rm_id, struct extended_cache_op* ops, size_t req_length, size_t resp_length,ClientContext *c);
-inline void add_cache_op(struct extended_cache_op* ops, size_t req_length,ClientContext *c);
-
 #endif /* CCKVS_UTILS_H */

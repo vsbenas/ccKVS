@@ -94,7 +94,7 @@ using namespace std;
 #define BALANCE_REQS_ 0 //
 #define BALANCE_REQS  (((ENABLE_WORKERS_CRCW == 1) && (ENABLE_THREAD_PARTITIONING_C_TO_W == 0)) ? BALANCE_REQS_ : 0) //
 
-#define WINDOW_SIZE 256 /* Maximum remote batch*/
+#define WINDOW_SIZE 512 /* Maximum remote batch*/
 #define KVS_BATCH 100 /* maximum allowed to fit in one eRPC packet */
 #define LOCAL_WINDOW  66 //12 // 21 for 200
 #define LOCAL_REGIONS 3 // number of local regions per client
@@ -116,7 +116,7 @@ using namespace std;
 #define MAXIMUM_INLINE_SIZE 188
 
 //-----WORKER-------
-#define ENABLE_KVS_BATCHING 0
+#define ENABLE_KVS_BATCHING 1
 
 #define WORKER_MAX_BATCH (KVS_BATCH * MACHINE_NUM)
 #define ENABLE_MINIMUM_WORKER_BATCHING 0
@@ -178,7 +178,7 @@ using namespace std;
 #define EMULATING_CREW 1 // emulate crew, to facilitate running the CREW baseline
 #define RANDOM_MACHINE 0 // pick a rnadom machine
 #define DISABLE_CACHE 0 // Run Baseline
-#define LOAD_BALANCE 0 // Use a uniform access pattern
+#define LOAD_BALANCE 1 // Use a uniform access pattern
 #define EMULATE_SWITCH_KV 0 // Does nothing..
 #define SWITCH_KV_NODE 0 // which machine is the cache
 
