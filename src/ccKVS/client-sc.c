@@ -568,6 +568,7 @@ void *run_client(void *arg)
         // wait for responses from old batches, before sending new ones
         if(previous_wr_i > 0) {
 
+            uint32_t debug_cnt = 0;
             int _continue = 0;
             do {
                 c->crpc->run_event_loop_once();
@@ -580,8 +581,9 @@ void *run_client(void *arg)
                         _continue = 1;
                     }
                 }
+                debug_cnt ++;
             } while (_continue);
-
+            c_stats[local_client_id].stalled_time_per_client += debug_cnt;
         }
 
 
