@@ -468,7 +468,7 @@ void *run_client(void *arg)
     ---------------------------------------------------------------------------*/
     while (1) {
 
-        /* Do next batch while waiting for responses! */
+        /* Prepare next batch while waiting for responses! */
 
 
         if(previous_wr_i > 0) {
@@ -589,6 +589,8 @@ void *run_client(void *arg)
 
         broadcast_cache_ops(c,cache_sessions); // cache ops
         send_requests(c,sessions); // data ops
+
+        c->crpc->run_event_loop_once(); // burst TX
 
     }
     return NULL;
