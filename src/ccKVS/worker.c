@@ -60,6 +60,23 @@ void req_handler(erpc::ReqHandle *req_handle, void *_context) {
 
 #if ENABLE_KVS_BATCHING == 1
 	assert(c->total_ops <= WORKER_MAX_BATCH);
+#else
+	KVS_BATCH_OP(&kv, c->total_ops, c->op_ptr_arr, c->mica_resp_arr);
+
+	erpc::MsgBuffer &resp = req_handle->pre_resp_msgbuf;
+
+	size_t size = c->total_ops * sizeof(mica_resp);
+
+	c->rpc->resize_msg_buffer(&resp, size);
+
+	memcpy((void *) resp.buf, (char *) c->mica_resp_arr, size);
+
+	c->rpc->enqueue_response(req_handle,&resp); // send the response immediately
+	w_stats[workerid].batches_per_worker++;
+	w_stats[workerid].remotes_per_worker += c->total_ops;
+
+	c->total_ops=0;
+
 #endif
 
 }
@@ -240,9 +257,7 @@ void *run_worker(void *arg) {
         }
 #if ENABLE_KVS_BATCHING == 1
         while(oldreqs != context.reqs_per_loop); // collect all requests
-#else
-		while(false); // execute only once
-#endif
+
         if (context.reqs_per_loop == 0) {
             w_stats[wrkr_lid].empty_polls_per_worker++;
             continue; // no request was found, start over
@@ -250,6 +265,14 @@ void *run_worker(void *arg) {
         else {
 			drain_batch(&context); // KVS BATCH
         }
+#else
+		while(false); // execute only once
+
+		if (context.reqs_per_loop == 0) {
+			w_stats[wrkr_lid].empty_polls_per_worker++;
+			continue; // no request was found, start over
+		}
+#endif
 
 		wr_i = 0;
 
