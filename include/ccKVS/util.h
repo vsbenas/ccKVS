@@ -205,7 +205,7 @@ void setup_coh_WRs(struct ibv_send_wr *, struct ibv_sge *, struct ibv_recv_wr *,
 void check_protocol(int);
 // pin a worker thread to a core
 int pin_worker(int w_id);
-// pin a client thread to a core
+// pin a client thread to a core 
 int pin_client(int c_id);
 
 
