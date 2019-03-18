@@ -350,7 +350,7 @@ void *run_client(void *arg)
     context.clientid = local_client_id;
 
     context.update_ops = (struct cache_op*) memalign(4096,CACHE_BATCH_SIZE * sizeof(cache_op));
-    context.update_resp = {0};
+    //context.update_resp = {0};
 
 
     ClientContext *c = &context;

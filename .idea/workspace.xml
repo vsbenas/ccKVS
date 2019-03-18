@@ -10,8 +10,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dc75651b-b85e-4dea-b795-da7504daa5a1" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/include/ccKVS/util.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/ccKVS/util.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ccKVS/client-sc.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/ccKVS/client-sc.c" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -46,14 +44,14 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="c" value="5058" />
+          <entry key="c" value="5060" />
           <entry key="dummy" value="1026" />
           <entry key="h" value="356" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="ObjectiveC" value="5414" />
+          <entry key="ObjectiveC" value="5416" />
           <entry key="PLAIN_TEXT" value="1026" />
         </counts>
       </usages-collector>
@@ -64,8 +62,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/ccKVS/client-sc.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="492">
-              <caret line="41" lean-forward="true" selection-start-line="41" selection-end-line="41" />
+            <state relative-caret-position="577">
+              <caret line="353" lean-forward="true" selection-start-line="353" selection-end-line="353" />
             </state>
           </provider>
         </entry>
@@ -162,7 +160,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>handle_cold</find>
       <find>rem_req</find>
       <find>rem_req -=</find>
       <find>rem_req_i</find>
@@ -192,6 +189,7 @@
       <find>update_ops</find>
       <find>ontext</find>
       <find>cache_MAX_</find>
+      <find>{0}</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -321,12 +319,12 @@
       <workItem from="1552433304621" duration="20619000" />
       <workItem from="1552565826350" duration="9496000" />
       <workItem from="1552584917373" duration="6410000" />
-      <workItem from="1552949632565" duration="2118000" />
+      <workItem from="1552949632565" duration="2169000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="71857000" />
+    <option name="totallyTimeSpent" value="71908000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="69" y="25" width="1851" height="1055" extended-state="6" />
@@ -595,8 +593,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/ccKVS/client-sc.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="492">
-          <caret line="41" lean-forward="true" selection-start-line="41" selection-end-line="41" />
+        <state relative-caret-position="577">
+          <caret line="353" lean-forward="true" selection-start-line="353" selection-end-line="353" />
         </state>
       </provider>
     </entry>
