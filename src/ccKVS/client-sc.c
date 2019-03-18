@@ -32,11 +32,13 @@ void req_cache(erpc::ReqHandle *req_handle, void *_context) {
 
     //printf("Received cache ops %i %s!\n",size, (char *) req->buf);
 
-    struct cache_op *update_ops = reinterpret_cast<struct cache_op*>(req->buf);
+    //struct cache_op *update_ops = reinterpret_cast<struct cache_op*>(req->buf);
 
-    struct mica_resp update_resp[BCAST_TO_CACHE_BATCH];
+    //struct mica_resp update_resp[BCAST_TO_CACHE_BATCH];
 
-    cache_batch_op_sc_with_cache_op(updates, local_client_id, &update_ops, update_resp);
+    memcpy(c->update_ops,req->buf,size); // needs to be aligned
+
+    cache_batch_op_sc_with_cache_op(updates, local_client_id, &(c->update_ops), c->update_resp);
 
     c->crpc->resize_msg_buffer(&resp, 3);
 
@@ -346,6 +348,10 @@ void *run_client(void *arg)
     ClientContext context;
 
     context.clientid = local_client_id;
+
+    context.update_ops = (struct cache_op*) memalign(4096,CACHE_BATCH_SIZE * sizeof(cache_op));
+    context.update_resp = {0};
+
 
     ClientContext *c = &context;
 

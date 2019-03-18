@@ -75,6 +75,9 @@ public:
 
 	int reqs_in_transit;
 
+    struct cache_op *update_ops;
+    struct mica_resp update_resp[CACHE_BATCH_SIZE];
+
 
 };
 
