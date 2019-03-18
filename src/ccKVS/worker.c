@@ -65,7 +65,7 @@ void req_handler(erpc::ReqHandle *req_handle, void *_context) {
 
 	erpc::MsgBuffer &resp = req_handle->pre_resp_msgbuf;
 
-	size_t size = c->total_ops * sizeof(mica_resp);
+	size = c->total_ops * sizeof(mica_resp);
 
 	c->rpc->resize_msg_buffer(&resp, size);
 

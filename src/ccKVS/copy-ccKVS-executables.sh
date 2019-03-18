@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-HOSTS=( "philly" "indianapolis" "houston" "sanantonio")
+HOSTS=( "philly" "indianapolis" "houston" "sanantonio" ) #"austin" "atlanta")
 #HOSTS=( "austin" "houston" "sanantonio")
 #HOSTS=( "austin" "houston" "sanantonio" "indianapolis" "philly" )
 #HOSTS=( "austin" "houston" "sanantonio" "indianapolis" "philly" "baltimore" "chicago" "atlanta" "detroit")
