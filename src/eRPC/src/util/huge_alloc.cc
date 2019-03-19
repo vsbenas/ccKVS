@@ -62,9 +62,10 @@ void HugeAlloc::print_stats() {
 Buffer HugeAlloc::alloc_raw(size_t size, DoRegister do_register) {
   std::ostringstream xmsg;  // The exception message
   // special case: don't use huge pages:
+  size = round_up<kHugepageSize>(size);
   if(numa_node == kMaxNumaNodes) {
 
-    volatile uint8_t *shm_buf = (volatile uint8_t *) memalign(4096, size);
+    uint8_t *shm_buf = static_cast<uint8_t *>(memalign(4096, size));
 
     // If we are here, the allocation succeeded.  Register if needed.
     bool do_register_bool = (do_register == DoRegister::kTrue);
@@ -76,7 +77,7 @@ Buffer HugeAlloc::alloc_raw(size_t size, DoRegister do_register) {
   }
 
 
-  size = round_up<kHugepageSize>(size);
+
   int shm_key, shm_id;
 
   while (true) {
