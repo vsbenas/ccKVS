@@ -70,7 +70,7 @@ Buffer HugeAlloc::alloc_raw(size_t size, DoRegister do_register) {
 
   if(numa_node == kMaxNumaNodes) {
 
-    uint8_t *shm_buf = static_cast<uint8_t *>(memalign(kHugepageSize, size));
+    uint8_t *shm_buf = static_cast<uint8_t *>(memalign(4096, size));
 
     // If we are here, the allocation succeeded.  Register if needed.
     bool do_register_bool = (do_register == DoRegister::kTrue);
@@ -78,7 +78,7 @@ Buffer HugeAlloc::alloc_raw(size_t size, DoRegister do_register) {
     if (do_register_bool) reg_info = reg_mr_func(shm_buf, size);
     // Save the SHM region so we can free it later
     shm_list.push_back(
-            shm_region_t(shm_key, shm_buf, size, do_register_bool, reg_info));
+            shm_region_t(0, shm_buf, size, do_register_bool, reg_info));
     stats.shm_reserved += size;
 
 
@@ -88,6 +88,8 @@ Buffer HugeAlloc::alloc_raw(size_t size, DoRegister do_register) {
   }
 
   size = round_up<kHugepageSize>(size);
+
+
 
   int shm_key, shm_id;
 

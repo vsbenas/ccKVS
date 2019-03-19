@@ -33,7 +33,7 @@ struct shm_region_t {
         size(size),
         registered(registered),
         mem_reg_info(mem_reg_info) {
-    assert(size % kHugepageSize == 0);
+    //assert(size % kHugepageSize == 0);
   }
 };
 
