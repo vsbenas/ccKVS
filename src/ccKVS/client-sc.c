@@ -132,6 +132,7 @@ inline void broadcast_cache_ops(ClientContext* c, int* cache_sessions) {
 
     }
     c->cidx=0;
+    free((void*) buffer);
 
 }
 
