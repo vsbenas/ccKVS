@@ -15,13 +15,13 @@ static size_t num_lcores_per_numa_node() {
 
 /// Return a list of logical cores in \p numa_node
 static std::vector<size_t> get_lcores_for_numa_node(size_t numa_node) {
-  rt_assert(numa_node <= static_cast<size_t>(numa_max_node()));
+  rt_assert(numa_node <= static_cast<size_t>(numa_max_node()) || numa_node == kMaxNumaNodes);
 
   std::vector<size_t> ret;
   size_t num_lcores = static_cast<size_t>(numa_num_configured_cpus());
 
   for (size_t i = 0; i < num_lcores; i++) {
-    if (numa_node == static_cast<size_t>(numa_node_of_cpu(i))) {
+    if (numa_node == static_cast<size_t>(numa_node_of_cpu(i)) || numa_node == kMaxNumaNodes) {
       ret.push_back(i);
     }
   }
