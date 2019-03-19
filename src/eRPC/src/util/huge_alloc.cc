@@ -19,7 +19,12 @@ HugeAlloc::HugeAlloc(size_t initial_size, size_t numa_node,
 HugeAlloc::~HugeAlloc() {
   // Deregister and detach the created SHM regions
   for (shm_region_t &shm_region : shm_list) {
+
     if (shm_region.registered) dereg_mr_func(shm_region.mem_reg_info);
+    if(numa_node == kMaxNumaNodes) {
+      free(static_cast<void *>(const_cast<uint8_t *>(shm_region.buf)));
+      continue;
+    }
     int ret = shmdt(static_cast<void *>(const_cast<uint8_t *>(shm_region.buf)));
     if (ret != 0) {
       fprintf(stderr, "HugeAlloc: Error freeing SHM buf for key %d.\n",
@@ -62,21 +67,27 @@ void HugeAlloc::print_stats() {
 Buffer HugeAlloc::alloc_raw(size_t size, DoRegister do_register) {
   std::ostringstream xmsg;  // The exception message
   // special case: don't use huge pages:
-  size = round_up<kHugepageSize>(size);
+
   if(numa_node == kMaxNumaNodes) {
 
-    uint8_t *shm_buf = static_cast<uint8_t *>(memalign(4096, size));
+    volatile uint8_t *shm_buf = static_cast<volatile uint8_t *>(memalign(kHugepageSize, size));
 
     // If we are here, the allocation succeeded.  Register if needed.
     bool do_register_bool = (do_register == DoRegister::kTrue);
     Transport::MemRegInfo reg_info;
     if (do_register_bool) reg_info = reg_mr_func(shm_buf, size);
+    // Save the SHM region so we can free it later
+    shm_list.push_back(
+            shm_region_t(shm_key, shm_buf, size, do_register_bool, reg_info));
+    stats.shm_reserved += size;
+
+
     // buffer.class_size is invalid because we didn't allocate from a class
     return Buffer(shm_buf, SIZE_MAX,
                   do_register_bool ? reg_info.lkey : UINT32_MAX);
   }
 
-
+  size = round_up<kHugepageSize>(size);
 
   int shm_key, shm_id;
 

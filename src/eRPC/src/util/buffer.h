@@ -10,7 +10,8 @@ class Buffer {
  public:
   Buffer(uint8_t *buf, size_t class_size, uint32_t lkey)
       : buf(buf), class_size(class_size), lkey(lkey) {}
-
+  Buffer(uint8_t *buf, size_t class_size, uint32_t lkey)
+            : buf(buf), class_size(class_size), lkey(lkey) {}
   Buffer() {}
 
   /// Since \p Buffer does not allocate its own \p buf, do nothing here.

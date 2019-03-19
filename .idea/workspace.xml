@@ -10,6 +10,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dc75651b-b85e-4dea-b795-da7504daa5a1" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/include/ccKVS/main.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/ccKVS/main.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/eRPC/src/util/buffer.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/eRPC/src/util/buffer.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/eRPC/src/util/huge_alloc.cc" beforeDir="false" afterPath="$PROJECT_DIR$/src/eRPC/src/util/huge_alloc.cc" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -32,28 +34,30 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="c" value="32" />
+          <entry key="c" value="35" />
           <entry key="cc" value="15" />
-          <entry key="h" value="41" />
+          <entry key="h" value="46" />
+          <entry key="md" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="ObjectiveC" value="88" />
+          <entry key="ObjectiveC" value="96" />
+          <entry key="PLAIN_TEXT" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="c" value="5060" />
-          <entry key="cc" value="152" />
-          <entry key="dummy" value="1212" />
-          <entry key="h" value="381" />
+          <entry key="cc" value="207" />
+          <entry key="dummy" value="1307" />
+          <entry key="h" value="388" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="ObjectiveC" value="5593" />
-          <entry key="PLAIN_TEXT" value="1212" />
+          <entry key="ObjectiveC" value="5655" />
+          <entry key="PLAIN_TEXT" value="1307" />
         </counts>
       </usages-collector>
     </session>
@@ -61,10 +65,10 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/ccKVS/client-sc.c">
+        <entry file="file://$PROJECT_DIR$/src/ccKVS/client-lin.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="385">
-              <caret line="259" column="30" selection-start-line="259" selection-start-column="27" selection-end-line="259" selection-end-column="30" />
+            <state relative-caret-position="343">
+              <caret line="27" column="40" selection-start-line="27" selection-start-column="40" selection-end-line="27" selection-end-column="40" />
             </state>
           </provider>
         </entry>
@@ -72,8 +76,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/libhrd/hrd_conn.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="367">
-              <caret line="119" column="28" selection-start-line="119" selection-start-column="28" selection-end-line="119" selection-end-column="74" />
+            <state relative-caret-position="151">
+              <caret line="110" column="32" lean-forward="true" selection-start-line="110" selection-start-column="32" selection-end-line="110" selection-end-column="32" />
               <folding>
                 <element signature="e#579#707#0" expanded="true" />
               </folding>
@@ -82,10 +86,23 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/include/libhrd/hrd.h">
+        <entry file="file://$PROJECT_DIR$/src/mica/mica.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="169">
-              <caret line="216" column="4" selection-start-line="216" selection-start-column="4" selection-end-line="216" selection-end-column="32" />
+            <state relative-caret-position="1019">
+              <caret line="72" column="39" selection-start-line="72" selection-start-column="39" selection-end-line="72" selection-end-column="39" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/ccKVS/main.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="199">
+              <caret line="176" column="25" lean-forward="true" selection-start-line="176" selection-start-column="25" selection-end-line="176" selection-end-column="25" />
+              <folding>
+                <element signature="e#6953#7122#0" expanded="true" />
+                <element signature="e#7157#7879#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -93,38 +110,17 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/eRPC/src/util/huge_alloc.cc">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="231">
-              <caret line="70" column="14" selection-start-line="70" selection-start-column="14" selection-end-line="70" selection-end-column="14" />
+            <state relative-caret-position="105">
+              <caret line="69" column="2" lean-forward="true" selection-start-line="69" selection-start-column="2" selection-end-line="69" selection-end-column="2" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/eRPC/src/rpc_impl/rpc.cc">
+        <entry file="file://$PROJECT_DIR$/src/eRPC/src/rpc.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1026">
-              <caret line="57" column="50" selection-start-line="57" selection-start-column="50" selection-end-line="57" selection-end-column="50" />
-              <folding>
-                <element signature="e#3362#3373#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/eRPC/src/nexus_impl/nexus.cc">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="828">
-              <caret line="55" column="18" selection-start-line="55" selection-start-column="18" selection-end-line="55" selection-end-column="18" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/eRPC/src/transport.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="179">
-              <caret line="93" column="24" lean-forward="true" selection-start-line="93" selection-start-column="24" selection-end-line="93" selection-end-column="24" />
+            <state relative-caret-position="323">
+              <caret line="135" column="18" selection-start-line="135" selection-start-column="8" selection-end-line="135" selection-end-column="18" />
             </state>
           </provider>
         </entry>
@@ -132,17 +128,26 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/eRPC/src/transport_impl/verbs_common.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="179">
-              <caret line="56" column="29" selection-start-line="56" selection-start-column="29" selection-end-line="56" selection-end-column="29" />
+            <state relative-caret-position="323">
+              <caret line="69" column="29" selection-start-line="69" selection-start-column="29" selection-end-line="69" selection-end-column="29" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/eRPC/src/transport_impl/raw/raw_transport.cc">
+        <entry file="file://$PROJECT_DIR$/src/eRPC/src/util/buffer.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="252">
+              <caret line="14" column="13" lean-forward="true" selection-start-line="14" selection-start-column="13" selection-end-line="14" selection-end-column="13" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/eRPC/NOTES.md">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="197">
-              <caret line="361" column="13" selection-start-line="361" selection-start-column="2" selection-end-line="361" selection-end-column="13" />
+              <caret line="104" column="8" selection-start-line="104" selection-start-column="8" selection-end-line="104" selection-end-column="8" />
             </state>
           </provider>
         </entry>
@@ -150,8 +155,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/eRPC/src/transport_impl/infiniband/ib_transport.cc">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="197">
-              <caret line="211" column="44" selection-start-line="211" selection-start-column="26" selection-end-line="211" selection-end-column="44" />
+            <state relative-caret-position="601">
+              <caret line="238" column="12" selection-start-line="238" selection-start-column="4" selection-end-line="238" selection-end-column="12" />
             </state>
           </provider>
         </entry>
@@ -160,10 +165,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>extended_cache_op</find>
-      <find>mica_print_op</find>
-      <find>batch_op</find>
-      <find>mica_pri</find>
       <find>update_ops</find>
       <find>ontext</find>
       <find>updates_per_client</find>
@@ -183,13 +184,17 @@
       <find>nexus</find>
       <find>numa_node_id</find>
       <find>hrd_ctrl_blk</find>
-      <find>dgram_buf</find>
       <find>numa_</find>
-      <find>lkey</find>
-      <find>numa_node</find>
       <find>TTR</find>
+      <find>dgram_buf</find>
       <find>cb</find>
+      <find>kvs_batching</find>
+      <find>numa_node</find>
       <find>buf</find>
+      <find>ring_extent</find>
+      <find>recv_sgl</find>
+      <find>ib_flags</find>
+      <find>lkey</find>
     </findStrings>
     <dirStrings>
       <dir>$PROJECT_DIR$/src/eRPC/src</dir>
@@ -207,14 +212,15 @@
         <option value="$PROJECT_DIR$/src/ccKVS/main.c" />
         <option value="$PROJECT_DIR$/include/ccKVS/cache.h" />
         <option value="$PROJECT_DIR$/src/eRPC/src/transport_impl/infiniband/ib_transport.h" />
-        <option value="$PROJECT_DIR$/include/ccKVS/main.h" />
         <option value="$PROJECT_DIR$/include/ccKVS/inline_util.h" />
         <option value="$PROJECT_DIR$/src/ccKVS/worker.c" />
         <option value="$PROJECT_DIR$/include/ccKVS/util.h" />
         <option value="$PROJECT_DIR$/src/ccKVS/client-sc.c" />
-        <option value="$PROJECT_DIR$/src/eRPC/src/nexus_impl/nexus.cc" />
         <option value="$PROJECT_DIR$/src/eRPC/src/util/numautils.h" />
         <option value="$PROJECT_DIR$/src/eRPC/src/rpc_impl/rpc.cc" />
+        <option value="$PROJECT_DIR$/src/eRPC/src/nexus_impl/nexus.cc" />
+        <option value="$PROJECT_DIR$/include/ccKVS/main.h" />
+        <option value="$PROJECT_DIR$/src/eRPC/src/util/buffer.h" />
         <option value="$PROJECT_DIR$/src/eRPC/src/util/huge_alloc.cc" />
       </list>
     </option>
@@ -348,12 +354,12 @@
       <workItem from="1552433304621" duration="20619000" />
       <workItem from="1552565826350" duration="9496000" />
       <workItem from="1552584917373" duration="6410000" />
-      <workItem from="1552949632565" duration="7691000" />
+      <workItem from="1552949632565" duration="10252000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="77430000" />
+    <option name="totallyTimeSpent" value="79991000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="69" y="25" width="1851" height="1055" extended-state="6" />
@@ -432,13 +438,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/ccKVS/client-lin.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="271">
-          <caret line="267" column="73" selection-start-line="267" selection-start-column="53" selection-end-line="267" selection-end-column="73" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/eRPC/src/tweakme.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="360">
@@ -450,13 +449,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="191">
           <caret line="22" column="15" selection-start-line="22" selection-start-column="15" selection-end-line="22" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/eRPC/src/rpc.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="677">
-          <caret line="665" column="36" selection-start-line="665" selection-start-column="27" selection-end-line="665" selection-end-column="36" />
         </state>
       </provider>
     </entry>
@@ -519,13 +511,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/include/ccKVS/main.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3240">
-          <caret line="180" selection-start-line="180" selection-end-line="180" selection-end-column="54" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/ccKVS/worker.c">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="306">
@@ -582,20 +567,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/mica/mica.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="263">
-          <caret line="319" column="14" selection-start-line="319" selection-start-column="14" selection-end-line="319" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/eRPC/src/util/numautils.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="597">
-          <caret line="42" column="21" lean-forward="true" selection-start-line="42" selection-start-column="21" selection-end-line="42" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/eRPC/src/nexus.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="359">
@@ -610,16 +581,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/ccKVS/main.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="163">
-          <caret line="202" column="9" lean-forward="true" selection-start-line="202" selection-start-column="9" selection-end-line="202" selection-end-column="9" />
-          <folding>
-            <element signature="e#7157#7879#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/eRPC/src/transport.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="179">
@@ -627,38 +588,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/eRPC/src/nexus_impl/nexus.cc">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="828">
-          <caret line="55" column="18" selection-start-line="55" selection-start-column="18" selection-end-line="55" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/include/libhrd/hrd.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="169">
-          <caret line="216" column="4" selection-start-line="216" selection-start-column="4" selection-end-line="216" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/eRPC/src/transport_impl/raw/raw_transport.cc">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="197">
           <caret line="361" column="13" selection-start-line="361" selection-start-column="2" selection-end-line="361" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/eRPC/src/transport_impl/infiniband/ib_transport.cc">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="197">
-          <caret line="211" column="44" selection-start-line="211" selection-start-column="26" selection-end-line="211" selection-end-column="44" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/eRPC/src/transport_impl/verbs_common.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="179">
-          <caret line="56" column="29" selection-start-line="56" selection-start-column="29" selection-end-line="56" selection-end-column="29" />
         </state>
       </provider>
     </entry>
@@ -672,27 +605,115 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/include/libhrd/hrd.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="169">
+          <caret line="216" column="4" selection-start-line="216" selection-start-column="4" selection-end-line="216" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/include/ccKVS/main.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="61">
+          <caret line="112" column="43" selection-start-line="112" selection-start-column="43" selection-end-line="112" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/eRPC/src/util/numautils.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="232">
+          <caret line="25" column="5" lean-forward="true" selection-start-line="25" selection-start-column="5" selection-end-line="25" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/eRPC/src/nexus_impl/nexus.cc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="198">
+          <caret line="20" column="3" lean-forward="true" selection-start-line="20" selection-start-column="3" selection-end-line="20" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ccKVS/client-sc.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="277">
+          <caret line="262" column="51" selection-start-line="262" selection-start-column="34" selection-end-line="262" selection-end-column="51" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/mica/mica.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1019">
+          <caret line="72" column="39" selection-start-line="72" selection-start-column="39" selection-end-line="72" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ccKVS/main.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="199">
+          <caret line="176" column="25" lean-forward="true" selection-start-line="176" selection-start-column="25" selection-end-line="176" selection-end-column="25" />
+          <folding>
+            <element signature="e#6953#7122#0" expanded="true" />
+            <element signature="e#7157#7879#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/eRPC/NOTES.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="197">
+          <caret line="104" column="8" selection-start-line="104" selection-start-column="8" selection-end-line="104" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/eRPC/src/util/buffer.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="252">
+          <caret line="14" column="13" lean-forward="true" selection-start-line="14" selection-start-column="13" selection-end-line="14" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/eRPC/src/transport_impl/infiniband/ib_transport.cc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="601">
+          <caret line="238" column="12" selection-start-line="238" selection-start-column="4" selection-end-line="238" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/eRPC/src/transport_impl/verbs_common.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="69" column="29" selection-start-line="69" selection-start-column="29" selection-end-line="69" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ccKVS/client-lin.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="343">
+          <caret line="27" column="40" selection-start-line="27" selection-start-column="40" selection-end-line="27" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/libhrd/hrd_conn.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="367">
-          <caret line="119" column="28" selection-start-line="119" selection-start-column="28" selection-end-line="119" selection-end-column="74" />
+        <state relative-caret-position="151">
+          <caret line="110" column="32" lean-forward="true" selection-start-line="110" selection-start-column="32" selection-end-line="110" selection-end-column="32" />
           <folding>
             <element signature="e#579#707#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/ccKVS/client-sc.c">
+    <entry file="file://$PROJECT_DIR$/src/eRPC/src/rpc.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="385">
-          <caret line="259" column="30" selection-start-line="259" selection-start-column="27" selection-end-line="259" selection-end-column="30" />
+        <state relative-caret-position="323">
+          <caret line="135" column="18" selection-start-line="135" selection-start-column="8" selection-end-line="135" selection-end-column="18" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/eRPC/src/util/huge_alloc.cc">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="70" column="14" selection-start-line="70" selection-start-column="14" selection-end-line="70" selection-end-column="14" />
+        <state relative-caret-position="105">
+          <caret line="69" column="2" lean-forward="true" selection-start-line="69" selection-start-column="2" selection-end-line="69" selection-end-column="2" />
         </state>
       </provider>
     </entry>
