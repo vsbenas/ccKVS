@@ -10,7 +10,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dc75651b-b85e-4dea-b795-da7504daa5a1" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/include/ccKVS/main.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/ccKVS/main.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/eRPC/src/util/buffer.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/eRPC/src/util/buffer.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/eRPC/src/util/huge_alloc.cc" beforeDir="false" afterPath="$PROJECT_DIR$/src/eRPC/src/util/huge_alloc.cc" afterDir="false" />
     </list>
@@ -49,14 +48,14 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="c" value="5060" />
-          <entry key="cc" value="207" />
+          <entry key="cc" value="208" />
           <entry key="dummy" value="1307" />
-          <entry key="h" value="388" />
+          <entry key="h" value="397" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="ObjectiveC" value="5655" />
+          <entry key="ObjectiveC" value="5665" />
           <entry key="PLAIN_TEXT" value="1307" />
         </counts>
       </usages-collector>
@@ -110,8 +109,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/eRPC/src/util/huge_alloc.cc">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="105">
-              <caret line="69" column="2" lean-forward="true" selection-start-line="69" selection-start-column="2" selection-end-line="69" selection-end-column="2" />
+            <state relative-caret-position="195">
+              <caret line="77" column="16" lean-forward="true" selection-start-line="77" selection-start-column="16" selection-end-line="77" selection-end-column="16" />
             </state>
           </provider>
         </entry>
@@ -137,8 +136,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/eRPC/src/util/buffer.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="252">
-              <caret line="14" column="13" lean-forward="true" selection-start-line="14" selection-start-column="13" selection-end-line="14" selection-end-column="13" />
+            <state relative-caret-position="148">
+              <caret line="11" column="55" selection-start-line="11" selection-start-column="55" selection-end-line="11" selection-end-column="55" />
             </state>
           </provider>
         </entry>
@@ -165,7 +164,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>update_ops</find>
       <find>ontext</find>
       <find>updates_per_client</find>
       <find>{0}</find>
@@ -195,6 +193,7 @@
       <find>recv_sgl</find>
       <find>ib_flags</find>
       <find>lkey</find>
+      <find>~HugeA</find>
     </findStrings>
     <dirStrings>
       <dir>$PROJECT_DIR$/src/eRPC/src</dir>
@@ -354,12 +353,12 @@
       <workItem from="1552433304621" duration="20619000" />
       <workItem from="1552565826350" duration="9496000" />
       <workItem from="1552584917373" duration="6410000" />
-      <workItem from="1552949632565" duration="10252000" />
+      <workItem from="1552949632565" duration="10409000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="79991000" />
+    <option name="totallyTimeSpent" value="80148000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="69" y="25" width="1851" height="1055" extended-state="6" />
@@ -665,24 +664,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/eRPC/src/util/buffer.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="252">
-          <caret line="14" column="13" lean-forward="true" selection-start-line="14" selection-start-column="13" selection-end-line="14" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/eRPC/src/transport_impl/infiniband/ib_transport.cc">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="601">
           <caret line="238" column="12" selection-start-line="238" selection-start-column="4" selection-end-line="238" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/eRPC/src/transport_impl/verbs_common.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="69" column="29" selection-start-line="69" selection-start-column="29" selection-end-line="69" selection-end-column="29" />
         </state>
       </provider>
     </entry>
@@ -710,10 +695,24 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/eRPC/src/transport_impl/verbs_common.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="69" column="29" selection-start-line="69" selection-start-column="29" selection-end-line="69" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/eRPC/src/util/buffer.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="148">
+          <caret line="11" column="55" selection-start-line="11" selection-start-column="55" selection-end-line="11" selection-end-column="55" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/eRPC/src/util/huge_alloc.cc">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="69" column="2" lean-forward="true" selection-start-line="69" selection-start-column="2" selection-end-line="69" selection-end-column="2" />
+        <state relative-caret-position="195">
+          <caret line="77" column="16" lean-forward="true" selection-start-line="77" selection-start-column="16" selection-end-line="77" selection-end-column="16" />
         </state>
       </provider>
     </entry>
