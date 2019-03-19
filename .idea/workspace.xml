@@ -11,7 +11,6 @@
   <component name="ChangeListManager">
     <list default="true" id="dc75651b-b85e-4dea-b795-da7504daa5a1" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/src/eRPC/src/util/huge_alloc.cc" beforeDir="false" afterPath="$PROJECT_DIR$/src/eRPC/src/util/huge_alloc.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/eRPC/src/util/huge_alloc.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/eRPC/src/util/huge_alloc.h" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -33,7 +32,7 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="c" value="35" />
+          <entry key="c" value="36" />
           <entry key="cc" value="15" />
           <entry key="h" value="47" />
           <entry key="md" value="1" />
@@ -41,22 +40,22 @@
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="ObjectiveC" value="97" />
+          <entry key="ObjectiveC" value="98" />
           <entry key="PLAIN_TEXT" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="c" value="5060" />
-          <entry key="cc" value="218" />
-          <entry key="dummy" value="1307" />
+          <entry key="cc" value="258" />
+          <entry key="dummy" value="1317" />
           <entry key="h" value="399" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="ObjectiveC" value="5677" />
-          <entry key="PLAIN_TEXT" value="1307" />
+          <entry key="ObjectiveC" value="5717" />
+          <entry key="PLAIN_TEXT" value="1317" />
         </counts>
       </usages-collector>
     </session>
@@ -64,10 +63,10 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/ccKVS/client-lin.c">
+        <entry file="file://$PROJECT_DIR$/src/ccKVS/client-sc.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="343">
-              <caret line="27" column="40" selection-start-line="27" selection-start-column="40" selection-end-line="27" selection-end-column="40" />
+            <state relative-caret-position="403">
+              <caret line="149" column="28" selection-start-line="149" selection-start-column="13" selection-end-line="149" selection-end-column="28" />
             </state>
           </provider>
         </entry>
@@ -75,23 +74,10 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/libhrd/hrd_conn.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="151">
-              <caret line="110" column="32" lean-forward="true" selection-start-line="110" selection-start-column="32" selection-end-line="110" selection-end-column="32" />
+            <state relative-caret-position="367">
+              <caret line="125" column="18" lean-forward="true" selection-start-line="125" selection-start-column="18" selection-end-line="125" selection-end-column="18" />
               <folding>
                 <element signature="e#579#707#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/ccKVS/main.c">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="199">
-              <caret line="176" column="25" lean-forward="true" selection-start-line="176" selection-start-column="25" selection-end-line="176" selection-end-column="25" />
-              <folding>
-                <element signature="e#6953#7122#0" expanded="true" />
-                <element signature="e#7157#7879#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -100,8 +86,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/eRPC/src/util/huge_alloc.cc">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="97">
-              <caret line="73" lean-forward="true" selection-start-line="73" selection-end-line="73" />
+            <state relative-caret-position="152">
+              <caret line="72" column="30" lean-forward="true" selection-start-line="72" selection-start-column="30" selection-end-line="72" selection-end-column="30" />
             </state>
           </provider>
         </entry>
@@ -109,8 +95,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/eRPC/src/util/huge_alloc.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="377">
-              <caret line="35" column="6" selection-start-line="35" selection-start-column="6" selection-end-line="35" selection-end-column="6" />
+            <state relative-caret-position="17">
+              <caret line="18" column="7" selection-start-line="18" selection-start-column="7" selection-end-line="18" selection-end-column="7" />
             </state>
           </provider>
         </entry>
@@ -118,8 +104,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/eRPC/src/rpc.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="323">
-              <caret line="135" column="18" selection-start-line="135" selection-start-column="8" selection-end-line="135" selection-end-column="18" />
+            <state relative-caret-position="215">
+              <caret line="173" column="24" selection-start-line="173" selection-start-column="16" selection-end-line="173" selection-end-column="24" />
             </state>
           </provider>
         </entry>
@@ -191,8 +177,8 @@
       <find>buf</find>
       <find>ring_extent</find>
       <find>recv_sgl</find>
-      <find>ib_flags</find>
       <find>lkey</find>
+      <find>ib_flags</find>
       <find>~HugeA</find>
     </findStrings>
     <dirStrings>
@@ -220,8 +206,8 @@
         <option value="$PROJECT_DIR$/src/eRPC/src/nexus_impl/nexus.cc" />
         <option value="$PROJECT_DIR$/include/ccKVS/main.h" />
         <option value="$PROJECT_DIR$/src/eRPC/src/util/buffer.h" />
-        <option value="$PROJECT_DIR$/src/eRPC/src/util/huge_alloc.cc" />
         <option value="$PROJECT_DIR$/src/eRPC/src/util/huge_alloc.h" />
+        <option value="$PROJECT_DIR$/src/eRPC/src/util/huge_alloc.cc" />
       </list>
     </option>
   </component>
@@ -232,9 +218,9 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="109" />
-    <option name="y" value="125" />
-    <option name="width" value="1448" />
+    <option name="x" value="181" />
+    <option name="y" value="238" />
+    <option name="width" value="1438" />
     <option name="height" value="789" />
   </component>
   <component name="ProjectView">
@@ -354,12 +340,12 @@
       <workItem from="1552433304621" duration="20619000" />
       <workItem from="1552565826350" duration="9496000" />
       <workItem from="1552584917373" duration="6410000" />
-      <workItem from="1552949632565" duration="10585000" />
+      <workItem from="1552949632565" duration="11686000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="80324000" />
+    <option name="totallyTimeSpent" value="81425000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="69" y="25" width="1851" height="1055" extended-state="6" />
@@ -633,13 +619,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/ccKVS/client-sc.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="277">
-          <caret line="262" column="51" selection-start-line="262" selection-start-column="34" selection-end-line="262" selection-end-column="51" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/mica/mica.c">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1019">
@@ -679,23 +658,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/libhrd/hrd_conn.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="151">
-          <caret line="110" column="32" lean-forward="true" selection-start-line="110" selection-start-column="32" selection-end-line="110" selection-end-column="32" />
-          <folding>
-            <element signature="e#579#707#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/eRPC/src/rpc.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="135" column="18" selection-start-line="135" selection-start-column="8" selection-end-line="135" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/eRPC/src/transport_impl/verbs_common.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="323">
@@ -710,17 +672,41 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/ccKVS/client-sc.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="403">
+          <caret line="149" column="28" selection-start-line="149" selection-start-column="13" selection-end-line="149" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/eRPC/src/rpc.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="215">
+          <caret line="173" column="24" selection-start-line="173" selection-start-column="16" selection-end-line="173" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/libhrd/hrd_conn.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="367">
+          <caret line="125" column="18" lean-forward="true" selection-start-line="125" selection-start-column="18" selection-end-line="125" selection-end-column="18" />
+          <folding>
+            <element signature="e#579#707#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/eRPC/src/util/huge_alloc.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="377">
-          <caret line="35" column="6" selection-start-line="35" selection-start-column="6" selection-end-line="35" selection-end-column="6" />
+        <state relative-caret-position="17">
+          <caret line="18" column="7" selection-start-line="18" selection-start-column="7" selection-end-line="18" selection-end-column="7" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/eRPC/src/util/huge_alloc.cc">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="97">
-          <caret line="73" lean-forward="true" selection-start-line="73" selection-end-line="73" />
+        <state relative-caret-position="152">
+          <caret line="72" column="30" lean-forward="true" selection-start-line="72" selection-start-column="30" selection-end-line="72" selection-end-column="30" />
         </state>
       </provider>
     </entry>

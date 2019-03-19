@@ -70,7 +70,7 @@ Buffer HugeAlloc::alloc_raw(size_t size, DoRegister do_register) {
 
   if(numa_node == kMaxNumaNodes) {
 
-    uint8_t *shm_buf = static_cast<uint8_t *>(memalign(4096, size));
+    uint8_t *shm_buf = static_cast<uint8_t *>(malloc(size));
 
     // If we are here, the allocation succeeded.  Register if needed.
     bool do_register_bool = (do_register == DoRegister::kTrue);
